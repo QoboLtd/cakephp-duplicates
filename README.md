@@ -26,5 +26,5 @@ composer require qobo/cakephp-duplicates
 ## Setup
 Load plugin
 ```
-bin/cake plugin load --routes Qobo/Duplicates
+bin/cake plugin load --routes --bootstrap Qobo/Duplicates
 ```
