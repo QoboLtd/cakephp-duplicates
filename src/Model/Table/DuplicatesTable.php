@@ -76,7 +76,16 @@ class DuplicatesTable extends Table
             ->scalar('status')
             ->maxLength('status', 255)
             ->requirePresence('status', 'create')
-            ->notEmpty('status');
+            ->notEmpty('status')
+            ->add('status', 'custom', [
+                'rule' => function ($value, array $context) {
+                    return in_array($value, Configure::readOrFail('Duplicates.status.list'));
+                },
+                'message' => sprintf(
+                    'Only following statuses are supported: "%s"',
+                    implode(', ', Configure::readOrFail('Duplicates.status.list'))
+                )
+            ]);
 
         return $validator;
     }
