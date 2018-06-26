@@ -51,10 +51,6 @@ class CreateQoboDuplicates extends AbstractMigration
             'default' => null,
             'null' => false,
         ]);
-        $table->addColumn('trashed', 'datetime', [
-            'default' => null,
-            'null' => true,
-        ]);
         $table->addPrimaryKey([
             'id',
         ]);
