@@ -199,4 +199,62 @@ class DuplicatesTable extends Table
             array_push($this->mapErrors, sprintf('Failed to save duplicate record: "%s"', $error));
         }
     }
+
+    /**
+     * Fetches duplicates by model and rule name.
+     *
+     * @param string $model Model name
+     * @param string $rule Rule name
+     * @return array
+     */
+    public function fetchByModelAndRule($model, $rule)
+    {
+        $table = TableRegistry::getTableLocator()->get($model);
+
+        $query = $this->find();
+        $query->select(['original_id', 'count' => 'COUNT(*)']);
+        $query->group('original_id');
+        $query->where(['status' => Configure::read('Duplicates.status.default'), 'model' => $model, 'rule' => $rule]);
+
+        $result = [];
+        foreach ($query->all() as $entity) {
+            array_push($result, [
+                'id' => $entity->get('original_id'),
+                'value' => $table->get($entity->get('original_id'))->get($table->getDisplayField()),
+                'count' => $entity->get('count')
+            ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Fetches duplicates by original id and rule name.
+     *
+     * @param string $id Original id
+     * @param string $rule Rule name
+     * @return array
+     */
+    public function fetchByOriginalIDAndRule($id, $rule)
+    {
+        $resultSet = $this->find('all')
+            ->select(['duplicate_id', 'model'])
+            ->where(['original_id' => $id, 'rule' => $rule, 'status' => Configure::read('Duplicates.status.default')])
+            ->all();
+
+        if ($resultSet->isEmpty()) {
+            return [];
+        }
+
+        $table = TableRegistry::getTableLocator()->get($resultSet->first()->get('model'));
+        $ids = [];
+        foreach ($resultSet as $entity) {
+            $ids[] = $entity->get('duplicate_id');
+        }
+
+        return [
+            'original' => $table->get($id),
+            'duplicates' => $table->find()->where([$table->getPrimaryKey() . ' IN' => $ids])->all()
+        ];
+    }
 }
