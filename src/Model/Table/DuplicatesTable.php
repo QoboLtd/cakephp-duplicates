@@ -114,13 +114,27 @@ class DuplicatesTable extends Table
      */
     public function mapDuplicates()
     {
+        $modulesData = [];
         foreach (Utility::findDirs(Configure::readOrFail('Duplicates.path')) as $model) {
             $config = json_decode(json_encode((new ModuleConfig(ConfigType::DUPLICATES(), $model))->parse()), true);
             if (empty($config)) {
                 continue;
             }
 
-            $this->findByModel($model, $config);
+            $table = TableRegistry::getTableLocator()->get($model);
+
+            $modulesData[] = [
+                'table' => $table,
+                'duplicates' => $this->findByModel($table, $config)
+            ];
+        }
+
+        foreach ($modulesData as $moduleData) {
+            foreach ($moduleData['duplicates'] as $ruleData) {
+                foreach ($ruleData['entities'] as $entities) {
+                    $this->saveEntities($ruleData['rule'], $moduleData['table'], $entities);
+                }
+            }
         }
 
         return $this->mapErrors;
@@ -129,33 +143,43 @@ class DuplicatesTable extends Table
     /**
      * Find Model duplicates.
      *
-     * @param string $model Model name
+     * @param \Cake\Datasource\RepositoryInterface $table Table instance
      * @param array $config Duplicates configuration
-     * @return void
+     * @return array
      */
-    private function findByModel($model, array $config)
+    private function findByModel(RepositoryInterface $table, array $config)
     {
+        $result = [];
         foreach ($config as $ruleName => $ruleConfig) {
-            $this->findByRule($ruleName, $ruleConfig, TableRegistry::getTableLocator()->get($model));
+            $rule = new Rule($ruleName, $ruleConfig);
+
+            $result[] = [
+                'rule' => $rule,
+                'entities' => $this->findByRule($rule, $ruleConfig, $table)
+            ];
         }
+
+        return $result;
     }
 
     /**
      * Find duplicates by rule.
      *
-     * @param string $ruleName Rule name
+     * @param \Qobo\Duplicates\Rule $rule Rule instance
      * @param array $ruleConfig Duplicates rule configuration
-     * @param ]Cake\Datasource\RepositoryInterface $table Table instance
-     * @return void
+     * @param \Cake\Datasource\RepositoryInterface $table Table instance
+     * @return array
      */
-    private function findByRule($ruleName, array $ruleConfig, RepositoryInterface $table)
+    private function findByRule(Rule $rule, array $ruleConfig, RepositoryInterface $table)
     {
-        $rule = new Rule($ruleName, $ruleConfig);
         $finder = new Finder($table, $rule);
 
+        $result = [];
         foreach ($finder->execute() as $resultSet) {
-            $this->saveEntities($rule, $table, $resultSet);
+            $result[] = $resultSet;
         }
+
+        return $result;
     }
 
     /**
