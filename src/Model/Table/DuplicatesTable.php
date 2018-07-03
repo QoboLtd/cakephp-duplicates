@@ -288,4 +288,31 @@ class DuplicatesTable extends Table
 
         return true;
     }
+
+    /**
+     * Flags duplicates as false positive by rule name and duplicate IDs.
+     *
+     * @param string $rule Rule name
+     * @param array $ids Duplicate IDs
+     * @return bool
+     */
+    public function falsePositiveByRuleAndIDs($rule, array $ids)
+    {
+        $resultSet = $this->find('all')
+            ->where(['duplicate_id IN' => $ids, 'rule' => $rule])
+            ->all();
+
+        if ($resultSet->isEmpty()) {
+            return false;
+        }
+
+        $duplicateIds = [];
+        foreach ($resultSet as $entity) {
+            $duplicateIds[] = $entity->get('id');
+        }
+
+        $this->updateAll(['status' => 'processed'], ['id IN' => $duplicateIds]);
+
+        return true;
+    }
 }
