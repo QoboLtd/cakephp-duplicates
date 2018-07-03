@@ -114,13 +114,27 @@ class DuplicatesTable extends Table
      */
     public function mapDuplicates()
     {
+        $modulesData = [];
         foreach (Utility::findDirs(Configure::readOrFail('Duplicates.path')) as $model) {
             $config = json_decode(json_encode((new ModuleConfig(ConfigType::DUPLICATES(), $model))->parse()), true);
             if (empty($config)) {
                 continue;
             }
 
-            $this->findByModel($model, $config);
+            $table = TableRegistry::getTableLocator()->get($model);
+
+            $modulesData[] = [
+                'table' => $table,
+                'duplicates' => $this->findByModel($table, $config)
+            ];
+        }
+
+        foreach ($modulesData as $moduleData) {
+            foreach ($moduleData['duplicates'] as $ruleData) {
+                foreach ($ruleData['entities'] as $entities) {
+                    $this->saveEntities($ruleData['rule'], $moduleData['table'], $entities);
+                }
+            }
         }
 
         return $this->mapErrors;
@@ -129,33 +143,43 @@ class DuplicatesTable extends Table
     /**
      * Find Model duplicates.
      *
-     * @param string $model Model name
+     * @param \Cake\Datasource\RepositoryInterface $table Table instance
      * @param array $config Duplicates configuration
-     * @return void
+     * @return array
      */
-    private function findByModel($model, array $config)
+    private function findByModel(RepositoryInterface $table, array $config)
     {
+        $result = [];
         foreach ($config as $ruleName => $ruleConfig) {
-            $this->findByRule($ruleName, $ruleConfig, TableRegistry::getTableLocator()->get($model));
+            $rule = new Rule($ruleName, $ruleConfig);
+
+            $result[] = [
+                'rule' => $rule,
+                'entities' => $this->findByRule($rule, $ruleConfig, $table)
+            ];
         }
+
+        return $result;
     }
 
     /**
      * Find duplicates by rule.
      *
-     * @param string $ruleName Rule name
+     * @param \Qobo\Duplicates\Rule $rule Rule instance
      * @param array $ruleConfig Duplicates rule configuration
-     * @param ]Cake\Datasource\RepositoryInterface $table Table instance
-     * @return void
+     * @param \Cake\Datasource\RepositoryInterface $table Table instance
+     * @return array
      */
-    private function findByRule($ruleName, array $ruleConfig, RepositoryInterface $table)
+    private function findByRule(Rule $rule, array $ruleConfig, RepositoryInterface $table)
     {
-        $rule = new Rule($ruleName, $ruleConfig);
         $finder = new Finder($table, $rule);
 
+        $result = [];
         foreach ($finder->execute() as $resultSet) {
-            $this->saveEntities($rule, $table, $resultSet);
+            $result[] = $resultSet;
         }
+
+        return $result;
     }
 
     /**
@@ -174,5 +198,121 @@ class DuplicatesTable extends Table
         foreach ($persister->getErrors() as $error) {
             array_push($this->mapErrors, sprintf('Failed to save duplicate record: "%s"', $error));
         }
+    }
+
+    /**
+     * Fetches duplicates by model and rule name.
+     *
+     * @param string $model Model name
+     * @param string $rule Rule name
+     * @return array
+     */
+    public function fetchByModelAndRule($model, $rule)
+    {
+        $table = TableRegistry::getTableLocator()->get($model);
+
+        $query = $this->find();
+        $query->select(['original_id', 'count' => 'COUNT(*)']);
+        $query->group('original_id');
+        $query->where(['status' => Configure::read('Duplicates.status.default'), 'model' => $model, 'rule' => $rule]);
+
+        $result = [];
+        foreach ($query->all() as $entity) {
+            array_push($result, [
+                'id' => $entity->get('original_id'),
+                'value' => $table->get($entity->get('original_id'))->get($table->getDisplayField()),
+                'count' => $entity->get('count')
+            ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Fetches duplicates by original id and rule name.
+     *
+     * @param string $id Original id
+     * @param string $rule Rule name
+     * @return array
+     */
+    public function fetchByOriginalIDAndRule($id, $rule)
+    {
+        $resultSet = $this->find('all')
+            ->select(['duplicate_id', 'model'])
+            ->where(['original_id' => $id, 'rule' => $rule, 'status' => Configure::read('Duplicates.status.default')])
+            ->all();
+
+        if ($resultSet->isEmpty()) {
+            return [];
+        }
+
+        $table = TableRegistry::getTableLocator()->get($resultSet->first()->get('model'));
+        $ids = [];
+        foreach ($resultSet as $entity) {
+            $ids[] = $entity->get('duplicate_id');
+        }
+
+        return [
+            'original' => $table->get($id),
+            'duplicates' => $table->find()->where([$table->getPrimaryKey() . ' IN' => $ids])->all()
+        ];
+    }
+
+    /**
+     * Deletes duplicates by rule name and duplicate IDs.
+     *
+     * @param string $rule Rule name
+     * @param array $ids Duplicate IDs
+     * @return bool
+     */
+    public function deleteByRuleAndIDs($rule, array $ids)
+    {
+        $resultSet = $this->find('all')
+            ->where(['duplicate_id IN' => $ids, 'rule' => $rule])
+            ->all();
+
+        if ($resultSet->isEmpty()) {
+            return false;
+        }
+
+        $duplicateIds = [];
+        foreach ($resultSet as $entity) {
+            $duplicateIds[] = $entity->get('id');
+        }
+
+        $table = TableRegistry::getTableLocator()->get($resultSet->first()->get('model'));
+        foreach ($ids as $id) {
+            $table->delete($table->get($id));
+        }
+        $this->deleteAll(['id IN' => $duplicateIds]);
+
+        return true;
+    }
+
+    /**
+     * Flags duplicates as false positive by rule name and duplicate IDs.
+     *
+     * @param string $rule Rule name
+     * @param array $ids Duplicate IDs
+     * @return bool
+     */
+    public function falsePositiveByRuleAndIDs($rule, array $ids)
+    {
+        $resultSet = $this->find('all')
+            ->where(['duplicate_id IN' => $ids, 'rule' => $rule])
+            ->all();
+
+        if ($resultSet->isEmpty()) {
+            return false;
+        }
+
+        $duplicateIds = [];
+        foreach ($resultSet as $entity) {
+            $duplicateIds[] = $entity->get('id');
+        }
+
+        $this->updateAll(['status' => 'processed'], ['id IN' => $duplicateIds]);
+
+        return true;
     }
 }

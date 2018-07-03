@@ -11,9 +11,6 @@
  */
 namespace Qobo\Duplicates\Filter;
 
-/**
- * This is filter
- */
 final class StartsWithFilter extends AbstractFilter
 {
     /**
