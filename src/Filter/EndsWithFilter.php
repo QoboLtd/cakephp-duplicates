@@ -11,7 +11,7 @@
  */
 namespace Qobo\Duplicates\Filter;
 
-final class StartsWithFilter extends AbstractFilter
+final class EndsWithFilter extends AbstractFilter
 {
     /**
      * {@inheritDoc}
