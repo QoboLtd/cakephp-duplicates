@@ -99,4 +99,23 @@ class DuplicatesController extends AppController
         $success ? $this->set('data', []) : $this->set('error', 'Failed to mark duplicates as false positive');
         $this->set('_serialize', ['success', 'data', 'error']);
     }
+
+    /**
+     * Merge method.
+     *
+     * @param string $model Model name
+     * @param string $id Original ID
+     * @return \Cake\Http\Response|void
+     */
+    public function merge($model, $id)
+    {
+        $this->request->allowMethod('post');
+
+        $success = $this->Duplicates->mergeDuplicates($model, $id, $this->request->getData('data'));
+        $success = $this->Duplicates->deleteDuplicates($model, (array)$this->request->getData('ids'));
+
+        $this->set('success', $success);
+        $success ? $this->set('data', []) : $this->set('error', 'Failed to merge duplicates');
+        $this->set('_serialize', ['success', 'data', 'error']);
+    }
 }

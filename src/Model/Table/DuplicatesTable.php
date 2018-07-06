@@ -319,4 +319,21 @@ class DuplicatesTable extends Table
 
         return true;
     }
+
+    /**
+     * Flags duplicates as false positive by rule name and duplicate IDs.
+     *
+     * @param string $model Model name
+     * @param string $id Original id
+     * @param array $data Merge data
+     * @return bool
+     */
+    public function mergeDuplicates($model, $id, array $data)
+    {
+        $table = TableRegistry::getTableLocator()->get($model);
+        $entity = $table->get($id);
+        $entity = $table->patchEntity($entity, $data);
+
+        return (bool)$table->save($entity);
+    }
 }
