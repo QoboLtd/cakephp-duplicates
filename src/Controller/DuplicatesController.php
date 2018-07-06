@@ -34,13 +34,13 @@ class DuplicatesController extends AppController
     }
 
     /**
-     * List method.
+     * Items method.
      *
      * @param string $model Model name
      * @param string $rule Rule name
      * @return \Cake\Http\Response|void
      */
-    public function list($model, $rule)
+    public function items($model, $rule)
     {
         $this->request->allowMethod('get');
 
