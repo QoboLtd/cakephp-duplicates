@@ -257,7 +257,10 @@ class DuplicatesTable extends Table
 
         $data = [
             'original' => $original,
-            'duplicates' => $table->find()->where([$table->getPrimaryKey() . ' IN' => $ids])->all(),
+            'duplicates' => $table->find()
+                ->where([$table->getPrimaryKey() . ' IN' => $ids])
+                ->limit((int)Configure::read('Duplicates.limit'))
+                ->all(),
             'fields' => $original->visibleProperties(),
             'virtualFields' => $original->virtualProperties()
         ];
