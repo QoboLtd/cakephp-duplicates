@@ -18,6 +18,7 @@ use Cake\Event\Event;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use Qobo\Duplicates\Event\EventName;
 use Qobo\Duplicates\Finder;
 use Qobo\Duplicates\Persister;
 use Qobo\Duplicates\Rule;
@@ -260,14 +261,13 @@ class DuplicatesTable extends Table
             'fields' => $original->visibleProperties(),
             'virtualFields' => $original->virtualProperties()
         ];
-
-        $event = new Event('duplicates', $this, [
+        $event = new Event((string)EventName::DUPLICATE_AFTER_FIND(), $this, [
             'table' => $table,
             'data' => $data
         ]);
         $this->getEventManager()::instance()->dispatch($event);
 
-        if (! empty($this->getEventManager()->listeners('duplicates'))) {
+        if (! empty($this->getEventManager()->listeners((string)EventName::DUPLICATE_AFTER_FIND()))) {
             $data = $event->getResult();
         }
 
