@@ -321,7 +321,7 @@ class DuplicatesTable extends Table
     }
 
     /**
-     * Flags duplicates as false positive by rule name and duplicate IDs.
+     * Merges duplicates by updating original record with provided data.
      *
      * @param string $model Model name
      * @param string $id Original id
