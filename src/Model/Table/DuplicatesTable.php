@@ -14,6 +14,7 @@ namespace Qobo\Duplicates\Model\Table;
 use Cake\Core\Configure;
 use Cake\Datasource\RepositoryInterface;
 use Cake\Datasource\ResultSetInterface;
+use Cake\Event\Event;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
@@ -259,32 +260,20 @@ class DuplicatesTable extends Table
     }
 
     /**
-     * Deletes duplicates by rule name and duplicate IDs.
+     * Deletes duplicates by IDs.
      *
-     * @param string $rule Rule name
+     * @param string $model Model name
      * @param array $ids Duplicate IDs
      * @return bool
      */
-    public function deleteByRuleAndIDs($rule, array $ids)
+    public function deleteDuplicates($model, array $ids)
     {
-        $resultSet = $this->find('all')
-            ->where(['duplicate_id IN' => $ids, 'rule' => $rule])
-            ->all();
-
-        if ($resultSet->isEmpty()) {
-            return false;
-        }
-
-        $duplicateIds = [];
-        foreach ($resultSet as $entity) {
-            $duplicateIds[] = $entity->get('id');
-        }
-
-        $table = TableRegistry::getTableLocator()->get($resultSet->first()->get('model'));
+        $table = TableRegistry::getTableLocator()->get($model);
         foreach ($ids as $id) {
             $table->delete($table->get($id));
         }
-        $this->deleteAll(['id IN' => $duplicateIds]);
+
+        $this->deleteAll(['OR' => ['duplicate_id IN' => $ids, 'original_id IN' => $ids]]);
 
         return true;
     }

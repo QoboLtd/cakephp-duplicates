@@ -12,7 +12,6 @@
 namespace Qobo\Duplicates\Controller;
 
 use App\Controller\AppController;
-use Cake\ORM\TableRegistry;
 
 /**
  * Duplicates Controller
@@ -70,14 +69,14 @@ class DuplicatesController extends AppController
     /**
      * Delete method.
      *
-     * @param string $rule Rule name
+     * @param string $model Model name
      * @return \Cake\Http\Response|void
      */
-    public function delete($rule)
+    public function delete($model)
     {
         $this->request->allowMethod('delete');
 
-        $success = $this->Duplicates->deleteByRuleAndIDs($rule, (array)$this->request->getData('ids'));
+        $success = $this->Duplicates->deleteDuplicates($model, (array)$this->request->getData('ids'));
 
         $this->set('success', $success);
         $success ? $this->set('data', []) : $this->set('error', 'Failed to delete duplicates');
