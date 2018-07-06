@@ -14,9 +14,11 @@ namespace Qobo\Duplicates\Model\Table;
 use Cake\Core\Configure;
 use Cake\Datasource\RepositoryInterface;
 use Cake\Datasource\ResultSetInterface;
+use Cake\Event\Event;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use Qobo\Duplicates\Event\EventName;
 use Qobo\Duplicates\Finder;
 use Qobo\Duplicates\Persister;
 use Qobo\Duplicates\Rule;
@@ -247,44 +249,46 @@ class DuplicatesTable extends Table
         }
 
         $table = TableRegistry::getTableLocator()->get($resultSet->first()->get('model'));
+        $original = $table->get($id);
         $ids = [];
         foreach ($resultSet as $entity) {
             $ids[] = $entity->get('duplicate_id');
         }
 
-        return [
-            'original' => $table->get($id),
-            'duplicates' => $table->find()->where([$table->getPrimaryKey() . ' IN' => $ids])->all()
+        $data = [
+            'original' => $original,
+            'duplicates' => $table->find()->where([$table->getPrimaryKey() . ' IN' => $ids])->all(),
+            'fields' => $original->visibleProperties(),
+            'virtualFields' => $original->virtualProperties()
         ];
+        $event = new Event((string)EventName::DUPLICATE_AFTER_FIND(), $this, [
+            'table' => $table,
+            'data' => $data
+        ]);
+        $this->getEventManager()::instance()->dispatch($event);
+
+        if (! empty($this->getEventManager()->listeners((string)EventName::DUPLICATE_AFTER_FIND()))) {
+            $data = $event->getResult();
+        }
+
+        return $data;
     }
 
     /**
-     * Deletes duplicates by rule name and duplicate IDs.
+     * Deletes duplicates by IDs.
      *
-     * @param string $rule Rule name
+     * @param string $model Model name
      * @param array $ids Duplicate IDs
      * @return bool
      */
-    public function deleteByRuleAndIDs($rule, array $ids)
+    public function deleteDuplicates($model, array $ids)
     {
-        $resultSet = $this->find('all')
-            ->where(['duplicate_id IN' => $ids, 'rule' => $rule])
-            ->all();
-
-        if ($resultSet->isEmpty()) {
-            return false;
-        }
-
-        $duplicateIds = [];
-        foreach ($resultSet as $entity) {
-            $duplicateIds[] = $entity->get('id');
-        }
-
-        $table = TableRegistry::getTableLocator()->get($resultSet->first()->get('model'));
+        $table = TableRegistry::getTableLocator()->get($model);
         foreach ($ids as $id) {
             $table->delete($table->get($id));
         }
-        $this->deleteAll(['id IN' => $duplicateIds]);
+
+        $this->deleteAll(['OR' => ['duplicate_id IN' => $ids, 'original_id IN' => $ids]]);
 
         return true;
     }
@@ -314,5 +318,22 @@ class DuplicatesTable extends Table
         $this->updateAll(['status' => 'processed'], ['id IN' => $duplicateIds]);
 
         return true;
+    }
+
+    /**
+     * Merges duplicates by updating original record with provided data.
+     *
+     * @param string $model Model name
+     * @param string $id Original id
+     * @param array $data Merge data
+     * @return bool
+     */
+    public function mergeDuplicates($model, $id, array $data)
+    {
+        $table = TableRegistry::getTableLocator()->get($model);
+        $entity = $table->get($id);
+        $entity = $table->patchEntity($entity, $data);
+
+        return (bool)$table->save($entity);
     }
 }

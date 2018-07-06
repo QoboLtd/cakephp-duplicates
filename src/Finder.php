@@ -110,7 +110,7 @@ final class Finder
     {
         return $this->table->find('all')
             ->where([$this->table->getPrimaryKey() . ' IN' => $ids])
-            ->order([$this->table->aliasField('created') => 'DESC'])
+            ->order([$this->table->aliasField('created') => 'ASC'])
             ->all();
     }
 }
