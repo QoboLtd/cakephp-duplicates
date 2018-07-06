@@ -34,19 +34,18 @@ class DuplicatesController extends AppController
     }
 
     /**
-     * Index method.
+     * List method.
      *
+     * @param string $model Model name
+     * @param string $rule Rule name
      * @return \Cake\Http\Response|void
      */
-    public function index()
+    public function list($model, $rule)
     {
-        $this->request->allowMethod(['get']);
+        $this->request->allowMethod('get');
 
         $this->set('success', true);
-        $this->set('data', $this->Duplicates->fetchByModelAndRule(
-            $this->request->getParam('pass.0'),
-            $this->request->getParam('pass.1')
-        ));
+        $this->set('data', $this->Duplicates->fetchByModelAndRule($model, $rule));
         $this->set('_serialize', ['success', 'data']);
     }
 
@@ -59,7 +58,7 @@ class DuplicatesController extends AppController
      */
     public function view($originalId, $rule)
     {
-        $this->request->allowMethod(['get']);
+        $this->request->allowMethod('get');
 
         $this->set('success', true);
         $this->set('data', $this->Duplicates->fetchByOriginalIDAndRule($originalId, $rule));
