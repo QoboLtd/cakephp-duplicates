@@ -265,7 +265,7 @@ class DuplicatesTable extends Table
             'table' => $table,
             'data' => $data
         ]);
-        $this->getEventManager()::instance()->dispatch($event);
+        $this->getEventManager()->dispatch($event);
 
         if (! empty($this->getEventManager()->listeners((string)EventName::DUPLICATE_AFTER_FIND()))) {
             $data = $event->getResult();
