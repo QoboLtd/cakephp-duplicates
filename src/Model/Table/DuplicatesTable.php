@@ -248,15 +248,30 @@ class DuplicatesTable extends Table
         }
 
         $table = TableRegistry::getTableLocator()->get($resultSet->first()->get('model'));
+        $original = $table->get($id);
         $ids = [];
         foreach ($resultSet as $entity) {
             $ids[] = $entity->get('duplicate_id');
         }
 
-        return [
-            'original' => $table->get($id),
-            'duplicates' => $table->find()->where([$table->getPrimaryKey() . ' IN' => $ids])->all()
+        $data = [
+            'original' => $original,
+            'duplicates' => $table->find()->where([$table->getPrimaryKey() . ' IN' => $ids])->all(),
+            'fields' => $original->visibleProperties(),
+            'virtualFields' => $original->virtualProperties()
         ];
+
+        $event = new Event('duplicates', $this, [
+            'table' => $table,
+            'data' => $data
+        ]);
+        $this->getEventManager()::instance()->dispatch($event);
+
+        if (! empty($this->getEventManager()->listeners('duplicates'))) {
+            $data = $event->getResult();
+        }
+
+        return $data;
     }
 
     /**
