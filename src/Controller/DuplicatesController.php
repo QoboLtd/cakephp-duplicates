@@ -44,9 +44,12 @@ class DuplicatesController extends AppController
     {
         $this->request->allowMethod('get');
 
+        $result = $this->Duplicates->fetchByModelAndRule($model, $rule, (array)$this->request->getQuery());
+
         $this->set('success', true);
-        $this->set('data', $this->Duplicates->fetchByModelAndRule($model, $rule));
-        $this->set('_serialize', ['success', 'data']);
+        $this->set('data', $result['data']);
+        $this->set('pagination', $result['pagination']);
+        $this->set('_serialize', ['success', 'data', 'pagination']);
     }
 
     /**

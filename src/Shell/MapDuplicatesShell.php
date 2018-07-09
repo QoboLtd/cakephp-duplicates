@@ -38,8 +38,6 @@ class MapDuplicatesShell extends Shell
      */
     public function main()
     {
-        $this->out($this->OptionParser->help());
-
         $table = TableRegistry::getTableLocator()->get('Qobo/Duplicates.Duplicates');
         $result = $table->mapDuplicates();
 
