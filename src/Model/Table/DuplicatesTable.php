@@ -207,9 +207,10 @@ class DuplicatesTable extends Table
      *
      * @param string $model Model name
      * @param string $rule Rule name
+     * @param array $options Query options
      * @return array
      */
-    public function fetchByModelAndRule($model, $rule)
+    public function fetchByModelAndRule($model, $rule, array $options)
     {
         $table = TableRegistry::getTableLocator()->get($model);
 
@@ -217,12 +218,25 @@ class DuplicatesTable extends Table
         $query->select(['original_id', 'count' => 'COUNT(*)']);
         $query->group('original_id');
         $query->where(['status' => Configure::read('Duplicates.status.default'), 'model' => $model, 'rule' => $rule]);
+        $query->order(['count' => 'DESC', 'original_id' => 'ASC']);
 
-        $result = [];
+        $result = [
+            'pagination' => ['count' => $query->count()],
+            'data' => []
+        ];
+
+        if (isset($options['page']) && isset($options['size'])) {
+            $query->offset((int)$options['page'] * (int)$options['size'])
+                ->limit((int)$options['size']);
+        }
+
         foreach ($query->all() as $entity) {
-            array_push($result, [
+            array_push($result['data'], [
                 'id' => $entity->get('original_id'),
-                'value' => $table->get($entity->get('original_id'))->get($table->getDisplayField()),
+                'value' => $table->get(
+                    $entity->get('original_id'),
+                    ['fields' => [$table->getDisplayField()]]
+                )->get($table->getDisplayField()),
                 'count' => $entity->get('count')
             ]);
         }
