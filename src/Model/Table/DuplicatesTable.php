@@ -233,10 +233,7 @@ class DuplicatesTable extends Table
         foreach ($query->all() as $entity) {
             array_push($result['data'], [
                 'id' => $entity->get('original_id'),
-                'value' => $table->get(
-                    $entity->get('original_id'),
-                    ['fields' => [$table->getDisplayField()]]
-                )->get($table->getDisplayField()),
+                'value' => $table->get($entity->get('original_id'))->get($table->getDisplayField()),
                 'count' => $entity->get('count')
             ]);
         }
