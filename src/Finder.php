@@ -30,18 +30,38 @@ final class Finder
     private $query;
 
     /**
+     * Query limit.
+     *
+     * @var int
+     */
+    private $limit = 0;
+
+    /**
+     * Query offset.
+     *
+     * @var int
+     */
+    private $offset = -1;
+
+    /**
      * Constructor method.
      *
      * @param \Cake\Datasource\RepositoryInterface $table Target table instance
      * @param \Qobo\Duplicates\Rule $rule Rule instance
+     * @param int $limit Query limit
      * @return void
      */
-    public function __construct(RepositoryInterface $table, Rule $rule)
+    public function __construct(RepositoryInterface $table, Rule $rule, $limit = 0)
     {
         $this->table = $table;
         $this->rule = $rule;
+        $this->limit = (int)$limit;
         $this->query = $this->table->find('all')
             ->select([$this->table->getPrimaryKey() => sprintf('GROUP_CONCAT(%s)', $this->table->getPrimaryKey())]);
+
+        if (0 < $this->limit) {
+            $this->query->limit($this->limit);
+        }
     }
 
     /**
@@ -51,7 +71,11 @@ final class Finder
      */
     public function execute()
     {
+        $this->offset++;
         $this->buildQuery();
+        if (0 < $this->limit) {
+            $this->query->offset($this->offset * $this->limit);
+        }
 
         return $this->fetchAll();
     }
