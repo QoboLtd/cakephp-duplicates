@@ -22,6 +22,7 @@ use Qobo\Duplicates\Event\EventName;
 use Qobo\Duplicates\Finder;
 use Qobo\Duplicates\Persister;
 use Qobo\Duplicates\Rule;
+use Qobo\Duplicates\RuleInterface;
 use Qobo\Utils\ModuleConfig\ConfigType;
 use Qobo\Utils\ModuleConfig\ModuleConfig;
 use Qobo\Utils\Utility;
@@ -125,74 +126,54 @@ class DuplicatesTable extends Table
 
             $table = TableRegistry::getTableLocator()->get($model);
 
-            $modulesData[] = [
-                'table' => $table,
-                'duplicates' => $this->findByModel($table, $config)
-            ];
-        }
-
-        foreach ($modulesData as $moduleData) {
-            foreach ($moduleData['duplicates'] as $ruleData) {
-                foreach ($ruleData['entities'] as $entities) {
-                    $this->saveEntities($ruleData['rule'], $moduleData['table'], $entities);
-                }
-            }
+            $this->mapByModel($table, $config);
         }
 
         return $this->mapErrors;
     }
 
     /**
-     * Find Model duplicates.
+     * Map Model duplicates.
      *
      * @param \Cake\Datasource\RepositoryInterface $table Table instance
      * @param array $config Duplicates configuration
-     * @return array
+     * @return void
      */
-    private function findByModel(RepositoryInterface $table, array $config)
+    private function mapByModel(RepositoryInterface $table, array $config)
     {
-        $result = [];
         foreach ($config as $ruleName => $ruleConfig) {
-            $rule = new Rule($ruleName, $ruleConfig);
-
-            $result[] = [
-                'rule' => $rule,
-                'entities' => $this->findByRule($rule, $ruleConfig, $table)
-            ];
+            $this->mapByRule(new Rule($ruleName, $ruleConfig), $ruleConfig, $table);
         }
-
-        return $result;
     }
 
     /**
-     * Find duplicates by rule.
+     * Map duplicates by rule.
      *
-     * @param \Qobo\Duplicates\Rule $rule Rule instance
+     * @param \Qobo\Duplicates\RuleInterface $rule Rule instance
      * @param array $ruleConfig Duplicates rule configuration
      * @param \Cake\Datasource\RepositoryInterface $table Table instance
-     * @return array
+     * @return void
      */
-    private function findByRule(Rule $rule, array $ruleConfig, RepositoryInterface $table)
+    private function mapByRule(RuleInterface $rule, array $ruleConfig, RepositoryInterface $table)
     {
-        $finder = new Finder($table, $rule);
+        $finder = new Finder($table, $rule, 1);
 
-        $result = [];
-        foreach ($finder->execute() as $resultSet) {
-            $result[] = $resultSet;
+        while ($resultSets = $finder->execute()) {
+            foreach ($resultSets as $resultSet) {
+                $this->saveEntities($rule, $table, $resultSet);
+            }
         }
-
-        return $result;
     }
 
     /**
      * Persists duplicated records to the databse.
      *
-     * @param \Qobo\Duplicates\Rule $rule Rule instance
+     * @param \Qobo\Duplicates\RuleInterface $rule Rule instance
      * @param \Cake\Datasource\RepositoryInterface $table Table instance
      * @param \Cake\Datasource\ResultSetInterface $resultSet Result set
      * @return void
      */
-    private function saveEntities(Rule $rule, RepositoryInterface $table, ResultSetInterface $resultSet)
+    private function saveEntities(RuleInterface $rule, RepositoryInterface $table, ResultSetInterface $resultSet)
     {
         $persister = new Persister($table, $rule, $resultSet);
         $persister->execute();

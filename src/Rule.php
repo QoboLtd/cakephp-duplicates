@@ -6,7 +6,7 @@ use InvalidArgumentException;
 /**
  * This is a duplicates rule configuration class.
  */
-final class Rule
+final class Rule implements RuleInterface
 {
     /**
      * Name.
@@ -48,9 +48,7 @@ final class Rule
     }
 
     /**
-     * Rule name getter.
-     *
-     * @return string
+     * {@inheritDoc}
      */
     public function getName()
     {
@@ -58,9 +56,7 @@ final class Rule
     }
 
     /**
-     * Rule filters getter.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getFilters()
     {
