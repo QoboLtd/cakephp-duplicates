@@ -156,7 +156,7 @@ class DuplicatesTable extends Table
      */
     private function mapByRule(RuleInterface $rule, array $ruleConfig, RepositoryInterface $table)
     {
-        $finder = new Finder($table, $rule, 1);
+        $finder = new Finder($table, $rule, 10);
 
         while ($resultSets = $finder->execute()) {
             foreach ($resultSets as $resultSet) {
