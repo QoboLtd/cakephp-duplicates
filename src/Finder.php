@@ -65,7 +65,7 @@ final class Finder
     {
         $this->query->select(['checksum' => $this->query->func()->concat($this->buildFilters())])
             ->group('checksum')
-            ->having(['COUNT(*) > ' => 1]);
+            ->having(['COUNT(*) > ' => 1, 'checksum !=' => '']);
     }
 
     /**
