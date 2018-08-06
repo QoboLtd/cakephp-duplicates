@@ -128,13 +128,17 @@ final class Finder
      * Fetches duplicated records by IDs.
      *
      * @param array $ids Duplicates IDs
-     * @return array
+     * @return \Cake\Datasource\ResultSetInterface
      */
     private function fetchByIDs(array $ids)
     {
-        return $this->table->find('all')
-            ->where([$this->table->getPrimaryKey() . ' IN' => $ids])
-            ->order([$this->table->aliasField('created') => 'ASC'])
-            ->all();
+        $query = $this->table->find('all')
+            ->where([$this->table->getPrimaryKey() . ' IN' => $ids]);
+
+        if ($this->table->getSchema()->hasColumn('created')) {
+            $query->order([$this->table->aliasField('created') => 'ASC']);
+        }
+
+        return $query->all();
     }
 }
