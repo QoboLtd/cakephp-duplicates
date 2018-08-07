@@ -23,13 +23,6 @@ final class Finder
     private $rule;
 
     /**
-     * Query instance where the result is generated.
-     *
-     * @var \Cake\ORM\Query
-     */
-    private $query;
-
-    /**
      * Query limit.
      *
      * @var int
@@ -41,7 +34,7 @@ final class Finder
      *
      * @var int
      */
-    private $offset = -1;
+    private $offset = 0;
 
     /**
      * Constructor method.
@@ -56,12 +49,8 @@ final class Finder
         $this->table = $table;
         $this->rule = $rule;
         $this->limit = (int)$limit;
-        $this->query = $this->table->find('all')
-            ->select([$this->table->getPrimaryKey() => sprintf('GROUP_CONCAT(%s)', $this->table->getPrimaryKey())]);
 
-        if (0 < $this->limit) {
-            $this->query->limit($this->limit);
-        }
+        $this->resetOffset();
     }
 
     /**
@@ -71,25 +60,73 @@ final class Finder
      */
     public function execute()
     {
-        $this->offset++;
-        $this->buildQuery();
-        if (0 < $this->limit) {
-            $this->query->offset($this->offset * $this->limit);
+        $query = $this->buildQuery();
+
+        $result = [];
+        foreach ($query->all() as $entity) {
+            $result[] = $this->fetchByIDs(
+                explode(',', $entity->get($this->table->getPrimaryKey()))
+            );
         }
 
-        return $this->fetchAll();
+        return $result;
+    }
+
+    /**
+     * Query offset getter.
+     *
+     * @return int
+     */
+    public function getOffset()
+    {
+        return $this->offset;
+    }
+
+    /**
+     * Query offset setter.
+     *
+     * @param int $offset Query offset
+     * @return void
+     */
+    public function setOffset($offset)
+    {
+        $this->offset = (int)$offset;
+    }
+
+    /**
+     * Resets Query offset.
+     *
+     * @return void
+     */
+    public function resetOffset()
+    {
+        $this->offset = 0;
     }
 
     /**
      * Builds duplicates find query.
      *
-     * @return void
+     * @return \Cake\Datasource\QueryInterface
      */
     private function buildQuery()
     {
-        $this->query->select(['checksum' => $this->query->func()->concat($this->buildFilters())])
+        $query = $this->table->find('all');
+
+        $query->select([
+                $this->table->getPrimaryKey() => sprintf('GROUP_CONCAT(%s)', $this->table->getPrimaryKey()),
+                'checksum' => $query->func()->concat($this->buildFilters())
+            ])
             ->group('checksum')
             ->having(['COUNT(*) > ' => 1, 'checksum !=' => '']);
+
+        if (0 < $this->limit) {
+            $query->limit($this->limit)
+                ->offset($this->getOffset() * $this->limit);
+        }
+
+        $this->setOffset($this->getOffset() + 1);
+
+        return $query;
     }
 
     /**
@@ -102,23 +139,6 @@ final class Finder
         $result = [];
         foreach ($this->rule->getFilters() as $filter) {
             $result = array_merge($result, [$filter->getValue() => 'literal']);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Fetches all duplicated records.
-     *
-     * @return array
-     */
-    private function fetchAll()
-    {
-        $result = [];
-        foreach ($this->query->all() as $entity) {
-            $result[] = $this->fetchByIDs(
-                explode(',', $entity->get($this->table->getPrimaryKey()))
-            );
         }
 
         return $result;
