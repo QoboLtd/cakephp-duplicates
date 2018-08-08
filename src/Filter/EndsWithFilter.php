@@ -18,6 +18,6 @@ final class EndsWithFilter extends AbstractFilter
      */
     public function getValue()
     {
-        return sprintf('SUBSTRING(%s, -%d, %d)', $this->get('field'), $this->get('length'), $this->get('length'));
+        return sprintf('SUBSTR(%s, -%d, %d)', $this->get('field'), $this->get('length'), $this->get('length'));
     }
 }

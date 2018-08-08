@@ -13,6 +13,7 @@ namespace Qobo\Duplicates\Shell;
 
 use Cake\Console\Shell;
 use Cake\ORM\TableRegistry;
+use Qobo\Utils\Utility\Lock\FileLock;
 
 /**
  * Map Duplicates shell command.
@@ -38,6 +39,16 @@ class MapDuplicatesShell extends Shell
      */
     public function main()
     {
+        try {
+            $lock = new FileLock('import_' . md5(__FILE__) . '.lock');
+        } catch (Exception $e) {
+            $this->abort($e->getMessage());
+        }
+
+        if (! $lock->lock()) {
+            $this->abort('Map duplicates is already in progress');
+        }
+
         $table = TableRegistry::getTableLocator()->get('Qobo/Duplicates.Duplicates');
         $result = $table->mapDuplicates();
 
@@ -48,5 +59,7 @@ class MapDuplicatesShell extends Shell
         empty($result) ?
             $this->success('Duplicates mapped successfully') :
             $this->abort('Aborting, failed to persist duplicate records.');
+
+        $lock->unlock();
     }
 }
