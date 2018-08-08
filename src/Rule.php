@@ -2,6 +2,7 @@
 namespace Qobo\Duplicates;
 
 use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * This is a duplicates rule configuration class.
@@ -42,7 +43,19 @@ final class Rule implements RuleInterface
         $this->name = $name;
 
         foreach ($config as $item) {
+            if (! isset($item['filter'])) {
+                throw new InvalidArgumentException('Rule filter name is required');
+            }
+
+            if (! is_string($item['filter'])) {
+                throw new InvalidArgumentException('Rule filter name must be a string');
+            }
+
             $className = 'Qobo\Duplicates\Filter\\' . ucfirst($item['filter']) . 'Filter';
+            if (! class_exists($className)) {
+                throw new RuntimeException(sprintf('Filter class does not exist: %s', $className));
+            }
+
             array_push($this->filters, new $className($item));
         }
     }
