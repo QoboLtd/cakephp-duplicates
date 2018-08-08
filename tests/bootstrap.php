@@ -114,3 +114,6 @@ Cake\Core\Plugin::load('Qobo/' . $pluginName, ['path' => ROOT . DS, 'autoload' =
 
 Cake\Routing\DispatcherFactory::add('Routing');
 Cake\Routing\DispatcherFactory::add('ControllerFactory');
+
+// Load configuration file(s)
+Configure::load('Qobo/Duplicates.duplicates');
