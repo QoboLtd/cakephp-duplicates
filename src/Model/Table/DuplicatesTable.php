@@ -150,11 +150,10 @@ class DuplicatesTable extends Table
      * Map duplicates by rule.
      *
      * @param \Qobo\Duplicates\RuleInterface $rule Rule instance
-     * @param array $ruleConfig Duplicates rule configuration
      * @param \Cake\Datasource\RepositoryInterface $table Table instance
      * @return void
      */
-    private function mapByRule(RuleInterface $rule, array $ruleConfig, RepositoryInterface $table)
+    private function mapByRule(RuleInterface $rule, RepositoryInterface $table)
     {
         $finder = new Finder($table, $rule, 10);
 
