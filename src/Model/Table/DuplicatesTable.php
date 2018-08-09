@@ -19,6 +19,7 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use Qobo\Duplicates\Event\EventName;
+use Qobo\Duplicates\Filter\FilterCollection;
 use Qobo\Duplicates\Finder;
 use Qobo\Duplicates\Persister;
 use Qobo\Duplicates\Rule;
@@ -141,8 +142,12 @@ class DuplicatesTable extends Table
      */
     private function mapByModel(RepositoryInterface $table, array $config)
     {
-        foreach ($config as $ruleName => $ruleConfig) {
-            $this->mapByRule(new Rule($ruleName, $ruleConfig), $ruleConfig, $table);
+        foreach ($config as $ruleName => $filtersConfig) {
+            $filters = array_map(function ($conf) {
+                return new $conf['filter']($conf);
+            }, $filtersConfig);
+
+            $this->mapByRule(new Rule($ruleName, new FilterCollection(...$filters)), $table);
         }
     }
 
