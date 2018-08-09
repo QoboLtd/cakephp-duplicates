@@ -111,4 +111,19 @@ final class Rule implements RuleInterface
     {
         return $this->filters;
     }
+
+    /**
+     * Builds query filters.
+     *
+     * @return array
+     */
+    public function buildFilters()
+    {
+        $result = [];
+        foreach ($this->getFilters() as $filter) {
+            $result = array_merge($result, [$filter->getValue() => 'literal']);
+        }
+
+        return $result;
+    }
 }

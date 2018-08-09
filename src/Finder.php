@@ -114,7 +114,7 @@ final class Finder
 
         $query->select([
                 $this->table->getPrimaryKey() => sprintf('GROUP_CONCAT(%s)', $this->table->getPrimaryKey()),
-                'checksum' => $query->func()->concat($this->buildFilters())
+                'checksum' => $query->func()->concat($this->rule->buildFilters())
             ])
             ->group('checksum')
             ->having(['COUNT(*) > ' => 1, 'checksum !=' => '']);
@@ -127,21 +127,6 @@ final class Finder
         $this->setOffset($this->getOffset() + 1);
 
         return $query;
-    }
-
-    /**
-     * Builds query filters for sql CONCAT function.
-     *
-     * @return array
-     */
-    private function buildFilters()
-    {
-        $result = [];
-        foreach ($this->rule->getFilters() as $filter) {
-            $result = array_merge($result, [$filter->getValue() => 'literal']);
-        }
-
-        return $result;
     }
 
     /**
