@@ -39,7 +39,7 @@ class RuleTest extends TestCase
 
     public function testGetName()
     {
-        $this->assertEquals('foobar', $this->instance->getName());
+        $this->assertSame('foobar', $this->instance->getName());
     }
 
     public function testGetFilters()

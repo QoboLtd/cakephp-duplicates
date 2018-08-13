@@ -28,6 +28,6 @@ class ExactFilterTest extends TestCase
 
     public function testGetValue()
     {
-        $this->assertEquals('foo', $this->instance->getValue());
+        $this->assertSame('foo', $this->instance->getValue());
     }
 }
