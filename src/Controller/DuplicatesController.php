@@ -117,11 +117,24 @@ class DuplicatesController extends AppController
     {
         $this->request->allowMethod('post');
 
-        $success = $this->Duplicates->mergeDuplicates($model, $id, $this->request->getData('data'));
-        $success = $this->Duplicates->deleteDuplicates($model, (array)$this->request->getData('ids'));
+        if (! $this->Duplicates->mergeDuplicates($model, $id, (array)$this->request->getData('data'))) {
+            $this->set('success', false);
+            $this->set('error', 'Failed to merge duplicates');
+            $this->set('_serialize', ['success', 'error']);
 
-        $this->set('success', $success);
-        $success ? $this->set('data', []) : $this->set('error', 'Failed to merge duplicates');
-        $this->set('_serialize', ['success', 'data', 'error']);
+            return;
+        }
+
+        if (! $this->Duplicates->deleteDuplicates($model, (array)$this->request->getData('ids'))) {
+            $this->set('success', false);
+            $this->set('error', 'Failed to delete merged duplicates');
+            $this->set('_serialize', ['success', 'error']);
+
+            return;
+        }
+
+        $this->set('success', true);
+        $this->set('data', []);
+        $this->set('_serialize', ['success', 'data']);
     }
 }
