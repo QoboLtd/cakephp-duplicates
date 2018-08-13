@@ -281,10 +281,25 @@ class DuplicatesTable extends Table
     {
         $table = TableRegistry::getTableLocator()->get($model);
         foreach ($ids as $id) {
-            $table->delete($table->get($id));
-        }
+            $record = $table->find()
+                ->where([$table->getPrimaryKey() => $id])
+                ->first();
+            if (null === $record) {
+                return false;
+            }
 
-        $this->deleteAll(['OR' => ['duplicate_id IN' => $ids, 'original_id IN' => $ids]]);
+            $entity = $this->find()
+                ->where(['OR' => ['duplicate_id' => $id, 'original_id' => $id]])
+                ->first();
+            if (null === $entity) {
+                return false;
+            }
+
+            $this->getConnection()->transactional(function () use ($table, $record, $entity) {
+                $table->delete($record, ['atomic' => false]);
+                $this->delete($entity, ['atomic' => false]);
+            });
+        }
 
         return true;
     }
