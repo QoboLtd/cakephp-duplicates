@@ -219,7 +219,7 @@ class DuplicatesTable extends Table
             array_push($result['data'], [
                 'id' => $entity->get('original_id'),
                 'value' => $table->get($entity->get('original_id'))->get($table->getDisplayField()),
-                'count' => $entity->get('count')
+                'count' => (int)$entity->get('count')
             ]);
         }
 
@@ -229,7 +229,7 @@ class DuplicatesTable extends Table
     /**
      * Fetches duplicates by original id and rule name.
      *
-     * @param string $id Original id
+     * @param string $id Original ID
      * @param string $rule Rule name
      * @return array
      */
