@@ -19,6 +19,7 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use Qobo\Duplicates\Event\EventName;
+use Qobo\Duplicates\Filter\FilterCollection;
 use Qobo\Duplicates\Finder;
 use Qobo\Duplicates\Persister;
 use Qobo\Duplicates\Rule;
@@ -141,8 +142,12 @@ class DuplicatesTable extends Table
      */
     private function mapByModel(RepositoryInterface $table, array $config)
     {
-        foreach ($config as $ruleName => $ruleConfig) {
-            $this->mapByRule(new Rule($ruleName, $ruleConfig), $ruleConfig, $table);
+        foreach ($config as $ruleName => $filtersConfig) {
+            $filters = array_map(function ($conf) {
+                return new $conf['filter']($conf);
+            }, $filtersConfig);
+
+            $this->mapByRule(new Rule($ruleName, new FilterCollection(...$filters)), $table);
         }
     }
 
@@ -150,11 +155,10 @@ class DuplicatesTable extends Table
      * Map duplicates by rule.
      *
      * @param \Qobo\Duplicates\RuleInterface $rule Rule instance
-     * @param array $ruleConfig Duplicates rule configuration
      * @param \Cake\Datasource\RepositoryInterface $table Table instance
      * @return void
      */
-    private function mapByRule(RuleInterface $rule, array $ruleConfig, RepositoryInterface $table)
+    private function mapByRule(RuleInterface $rule, RepositoryInterface $table)
     {
         $finder = new Finder($table, $rule, 10);
 
@@ -215,7 +219,7 @@ class DuplicatesTable extends Table
             array_push($result['data'], [
                 'id' => $entity->get('original_id'),
                 'value' => $table->get($entity->get('original_id'))->get($table->getDisplayField()),
-                'count' => $entity->get('count')
+                'count' => (int)$entity->get('count')
             ]);
         }
 
@@ -225,7 +229,7 @@ class DuplicatesTable extends Table
     /**
      * Fetches duplicates by original id and rule name.
      *
-     * @param string $id Original id
+     * @param string $id Original ID
      * @param string $rule Rule name
      * @return array
      */
@@ -277,10 +281,25 @@ class DuplicatesTable extends Table
     {
         $table = TableRegistry::getTableLocator()->get($model);
         foreach ($ids as $id) {
-            $table->delete($table->get($id));
-        }
+            $record = $table->find()
+                ->where([$table->getPrimaryKey() => $id])
+                ->first();
+            if (null === $record) {
+                return false;
+            }
 
-        $this->deleteAll(['OR' => ['duplicate_id IN' => $ids, 'original_id IN' => $ids]]);
+            $entity = $this->find()
+                ->where(['OR' => ['duplicate_id' => $id, 'original_id' => $id]])
+                ->first();
+            if (null === $entity) {
+                return false;
+            }
+
+            $this->getConnection()->transactional(function () use ($table, $record, $entity) {
+                $table->delete($record, ['atomic' => false]);
+                $this->delete($entity, ['atomic' => false]);
+            });
+        }
 
         return true;
     }
@@ -323,7 +342,14 @@ class DuplicatesTable extends Table
     public function mergeDuplicates($model, $id, array $data)
     {
         $table = TableRegistry::getTableLocator()->get($model);
-        $entity = $table->get($id);
+        $entity = $table->find()
+            ->where([$table->getPrimaryKey() => $id])
+            ->first();
+
+        if (null === $entity) {
+            return false;
+        }
+
         $entity = $table->patchEntity($entity, $data);
 
         return (bool)$table->save($entity);

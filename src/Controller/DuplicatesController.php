@@ -55,17 +55,21 @@ class DuplicatesController extends AppController
     /**
      * View method.
      *
-     * @param string $originalId Original ID
+     * @param string $id Original ID
      * @param string $rule Rule name
      * @return \Cake\Http\Response|void
      */
-    public function view($originalId, $rule)
+    public function view($id, $rule)
     {
         $this->request->allowMethod('get');
 
-        $this->set('success', true);
-        $this->set('data', $this->Duplicates->fetchByOriginalIDAndRule($originalId, $rule));
-        $this->set('_serialize', ['success', 'data']);
+        $data = $this->Duplicates->fetchByOriginalIDAndRule($id, $rule);
+
+        $this->set('success', ! empty($data));
+        ! empty($data) ?
+            $this->set('data', $data) :
+            $this->set('error', sprintf('Failed to fetch duplicates for record with ID "%s"', $id));
+        $this->set('_serialize', ['success', 'data', 'error']);
     }
 
     /**
@@ -113,11 +117,24 @@ class DuplicatesController extends AppController
     {
         $this->request->allowMethod('post');
 
-        $success = $this->Duplicates->mergeDuplicates($model, $id, $this->request->getData('data'));
-        $success = $this->Duplicates->deleteDuplicates($model, (array)$this->request->getData('ids'));
+        if (! $this->Duplicates->mergeDuplicates($model, $id, (array)$this->request->getData('data'))) {
+            $this->set('success', false);
+            $this->set('error', 'Failed to merge duplicates');
+            $this->set('_serialize', ['success', 'error']);
 
-        $this->set('success', $success);
-        $success ? $this->set('data', []) : $this->set('error', 'Failed to merge duplicates');
-        $this->set('_serialize', ['success', 'data', 'error']);
+            return;
+        }
+
+        if (! $this->Duplicates->deleteDuplicates($model, (array)$this->request->getData('ids'))) {
+            $this->set('success', false);
+            $this->set('error', 'Failed to delete merged duplicates');
+            $this->set('_serialize', ['success', 'error']);
+
+            return;
+        }
+
+        $this->set('success', true);
+        $this->set('data', []);
+        $this->set('_serialize', ['success', 'data']);
     }
 }

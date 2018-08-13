@@ -28,6 +28,6 @@ class EndsWithFilterTest extends TestCase
 
     public function testGetValue()
     {
-        $this->assertEquals('SUBSTR(foo, -10, 10)', $this->instance->getValue());
+        $this->assertSame('SUBSTR(foo, -10, 10)', $this->instance->getValue());
     }
 }

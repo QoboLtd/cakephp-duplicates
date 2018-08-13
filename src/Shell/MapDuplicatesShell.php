@@ -27,7 +27,7 @@ class MapDuplicatesShell extends Shell
     {
         $parser = parent::getOptionParser();
 
-        $parser->description('Map Duplicate records');
+        $parser->setDescription('Map Duplicate records');
 
         return $parser;
     }
