@@ -45,12 +45,12 @@ class DuplicatesFixture extends TestFixture
     {
         $this->records = [
             [
-                'id' => '74d63566-f61c-4d7e-af66-417719c43d43',
-                'model' => 'Lorem ipsum dolor sit amet',
-                'original_id' => 'f011e0ad-be18-4d26-939e-3887178569e9',
-                'duplicate_id' => '03739537-77c6-4981-ab3b-a036ee5482a8',
-                'rule' => 'Lorem ipsum dolor sit amet',
-                'status' => 'Lorem ipsum dolor sit amet',
+                'id' => '00000000-0000-0000-0000-000000000001',
+                'model' => 'Articles',
+                'original_id' => '00000000-0000-0000-0000-000000000002',
+                'duplicate_id' => '00000000-0000-0000-0000-000000000003',
+                'rule' => 'byTitle',
+                'status' => 'pending',
                 'created' => '2018-08-07 17:45:16',
                 'modified' => '2018-08-07 17:45:16'
             ],
