@@ -55,17 +55,21 @@ class DuplicatesController extends AppController
     /**
      * View method.
      *
-     * @param string $originalId Original ID
+     * @param string $id Original ID
      * @param string $rule Rule name
      * @return \Cake\Http\Response|void
      */
-    public function view($originalId, $rule)
+    public function view($id, $rule)
     {
         $this->request->allowMethod('get');
 
-        $this->set('success', true);
-        $this->set('data', $this->Duplicates->fetchByOriginalIDAndRule($originalId, $rule));
-        $this->set('_serialize', ['success', 'data']);
+        $data = $this->Duplicates->fetchByOriginalIDAndRule($id, $rule);
+
+        $this->set('success', ! empty($data));
+        ! empty($data) ?
+            $this->set('data', $data) :
+            $this->set('error', sprintf('Failed to fetch duplicates for record with ID "%s"', $id));
+        $this->set('_serialize', ['success', 'data', 'error']);
     }
 
     /**
