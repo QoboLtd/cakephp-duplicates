@@ -342,7 +342,14 @@ class DuplicatesTable extends Table
     public function mergeDuplicates($model, $id, array $data)
     {
         $table = TableRegistry::getTableLocator()->get($model);
-        $entity = $table->get($id);
+        $entity = $table->find()
+            ->where([$table->getPrimaryKey() => $id])
+            ->first();
+
+        if (null === $entity) {
+            return false;
+        }
+
         $entity = $table->patchEntity($entity, $data);
 
         return (bool)$table->save($entity);
