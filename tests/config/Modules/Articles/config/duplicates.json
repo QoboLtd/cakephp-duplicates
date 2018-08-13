@@ -1,0 +1,6 @@
+{
+    "foobar": [
+        { "field": "title", "filter": "Qobo\\Duplicates\\Filter\\EndsWithFilter", "length": 3 },
+        { "field": "excerpt", "filter": "Qobo\\Duplicates\\Filter\\EndsWithFilter", "length": 1 }
+    ]
+}
