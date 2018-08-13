@@ -117,7 +117,7 @@ final class Finder
                 'checksum' => $query->func()->concat($this->rule->buildFilters())
             ])
             ->group('checksum')
-            ->having(['COUNT(*) > ' => 1, 'checksum !=' => '']);
+            ->having(['COUNT(*) > ' => 1, 'checksum !=' => ''], ['COUNT(*)' => 'integer', 'checksum' => 'string']);
 
         if (0 < $this->limit) {
             $query->limit($this->limit)
