@@ -28,3 +28,23 @@ Load plugin
 ```
 bin/cake plugin load --routes --bootstrap Qobo/Duplicates
 ```
+
+## Configuration
+Sample duplicates configuration:
+```json
+// config/Modules/Articles/duplicates.json
+{
+    "byTitle": [
+        { "field": "title", "filter": "Qobo\\Duplicates\\Filter\\ExactFilter" }
+    ],
+    "byBody": [
+        { "field": "body", "filter": "Qobo\\Duplicates\\Filter\\StartsWithFilter", "length": 8 }
+    ]
+}
+```
+
+## Mapping duplicates
+To map all duplicate records you need to run the following shell command:
+```
+./bin/cake map_duplicates
+```
