@@ -31,7 +31,7 @@ bin/cake plugin load --routes --bootstrap Qobo/Duplicates
 
 ## Configuration
 Sample duplicates configuration:
-```
+```json
 // config/Modules/Articles/duplicates.json
 {
     "byTitle": [
