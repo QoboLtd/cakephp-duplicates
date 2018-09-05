@@ -42,3 +42,9 @@ Sample duplicates configuration:
     ]
 }
 ```
+
+## Mapping duplicates
+To map all duplicate records you need to run the following shell command:
+```
+./bin/cake map_duplicates
+```
