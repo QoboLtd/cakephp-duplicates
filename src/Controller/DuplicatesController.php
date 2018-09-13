@@ -65,11 +65,9 @@ class DuplicatesController extends AppController
 
         $data = $this->Duplicates->fetchByOriginalIDAndRule($id, $rule);
 
-        $this->set('success', ! empty($data));
-        ! empty($data) ?
-            $this->set('data', $data) :
-            $this->set('error', sprintf('Failed to fetch duplicates for record with ID "%s"', $id));
-        $this->set('_serialize', ['success', 'data', 'error']);
+        $this->set('success', true);
+        $this->set('data', $data);
+        $this->set('_serialize', ['success', 'data']);
     }
 
     /**
