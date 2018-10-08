@@ -76,7 +76,5 @@ class MapDuplicatesShellTest extends ConsoleIntegrationTestCase
 
         $this->assertSame(null, $this->MapDuplicatesShell->main());
         $this->assertCount(3, $table->find()->all());
-
-        debug($this->MapDuplicatesShell->main());
     }
 }
