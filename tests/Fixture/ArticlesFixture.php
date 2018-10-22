@@ -7,6 +7,7 @@ class ArticlesFixture extends TestFixture
 {
     public $fields = [
         'id' => ['type' => 'uuid', 'null' => false],
+        'author_id' => ['type' => 'uuid', 'null' => false],
         'title' => ['type' => 'string', 'null' => true],
         'excerpt' => ['type' => 'string', 'null' => true],
         'body' => 'text',
@@ -18,6 +19,7 @@ class ArticlesFixture extends TestFixture
     public $records = [
         [
             'id' => '00000000-0000-0000-0000-000000000001',
+            'author_id' => '00000000-0000-0000-0000-000000000001',
             'title' => 'First article',
             'body' => 'First article body',
             'excerpt' => 'First',
@@ -26,6 +28,7 @@ class ArticlesFixture extends TestFixture
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000002',
+            'author_id' => '00000000-0000-0000-0000-000000000002',
             'title' => 'Second article',
             'body' => 'Second article body',
             'excerpt' => 'Second',
@@ -34,6 +37,7 @@ class ArticlesFixture extends TestFixture
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000003',
+            'author_id' => '00000000-0000-0000-0000-000000000001',
             'title' => 'Third article',
             'body' => 'Third article body',
             'excerpt' => 'Third',
@@ -42,6 +46,7 @@ class ArticlesFixture extends TestFixture
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000004',
+            'author_id' => '00000000-0000-0000-0000-000000000002',
             'title' => 'Fourth article',
             'body' => 'Fourth article body',
             'excerpt' => 'Fourth',
@@ -50,6 +55,7 @@ class ArticlesFixture extends TestFixture
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000005',
+            'author_id' => '00000000-0000-0000-0000-000000000002',
             'title' => 'Fifth article',
             'body' => 'Fifth article body',
             'excerpt' => 'Fifth',

@@ -168,7 +168,7 @@ class DuplicatesTableTest extends TestCase
             $result['duplicates']->first()
         );
 
-        $this->assertSame(['id', 'title', 'excerpt', 'body', 'created', 'modified'], $result['fields']);
+        $this->assertSame(['id', 'author_id', 'title', 'excerpt', 'body', 'created', 'modified'], $result['fields']);
 
         $this->assertSame([], $result['virtualFields']);
     }

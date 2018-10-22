@@ -3,19 +3,17 @@ namespace Qobo\Duplicates\Test\App\Model\Table;
 
 use Cake\ORM\Table;
 
-class ArticlesTable extends Table
+class CommentsTable extends Table
 {
     public function initialize(array $config)
     {
         parent::initialize($config);
 
-        $this->table('articles');
+        $this->table('comments');
         $this->primaryKey('id');
 
         $this->addBehavior('Timestamp');
 
-        $this->hasMany('Comments');
-        $this->belongsTo('Authors');
-        $this->belongsToMany('Tags');
+        $this->belongsTo('Articles');
     }
 }
