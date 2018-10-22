@@ -182,40 +182,44 @@ class DuplicatesTableTest extends TestCase
 
     public function testDeleteDuplicates()
     {
-        $ids = ['00000000-0000-0000-0000-000000000002'];
+        $this->deprecated(function () {
+            $ids = ['00000000-0000-0000-0000-000000000002'];
 
-        $this->assertTrue($this->Duplicates->deleteDuplicates('Articles', $ids));
+            $this->assertTrue($this->Duplicates->deleteDuplicates('Articles', $ids));
 
-        $query = Tableregistry::getTableLocator()
-            ->get('Articles')
-            ->find('all')
-            ->where(['id' => $ids[0]]);
-        $this->assertTrue($query->isEmpty());
+            $query = Tableregistry::getTableLocator()
+                ->get('Articles')
+                ->find('all')
+                ->where(['id' => $ids[0]]);
+            $this->assertTrue($query->isEmpty());
 
-        $query = $this->Duplicates->find('all')
-            ->where(['id' => '00000000-0000-0000-0000-000000000001']);
-        $this->assertTrue($query->isEmpty());
+            $query = $this->Duplicates->find('all')
+                ->where(['id' => '00000000-0000-0000-0000-000000000001']);
+            $this->assertTrue($query->isEmpty());
+        });
     }
 
     public function testDeleteDuplicatesWithInvalidID()
     {
-        // get duplcicates count
-        $count = $this->Duplicates->find('all')->count();
-        $ids = [
-            '00000000-0000-0000-0000-000000000001' // invalid duplicate ID
-        ];
+        $this->deprecated(function () {
+            // get duplcicates count
+            $count = $this->Duplicates->find('all')->count();
+            $ids = [
+                '00000000-0000-0000-0000-000000000001' // invalid duplicate ID
+            ];
 
-        $this->assertFalse($this->Duplicates->deleteDuplicates('Articles', $ids));
+            $this->assertFalse($this->Duplicates->deleteDuplicates('Articles', $ids));
 
-        // invalid duplicate ID
-        $query = TableRegistry::getTableLocator()
-            ->get('Articles')
-            ->find('all')
-            ->where(['id' => $ids[0]]);
-        $this->assertFalse($query->isEmpty());
+            // invalid duplicate ID
+            $query = TableRegistry::getTableLocator()
+                ->get('Articles')
+                ->find('all')
+                ->where(['id' => $ids[0]]);
+            $this->assertFalse($query->isEmpty());
 
-        // duplicate records were not affected
-        $this->assertSame($count, $this->Duplicates->find('all')->count());
+            // duplicate records were not affected
+            $this->assertSame($count, $this->Duplicates->find('all')->count());
+        });
     }
 
     public function testFalsePositiveByRuleAndIDs()
@@ -239,24 +243,46 @@ class DuplicatesTableTest extends TestCase
 
     public function testMergeDuplicates()
     {
-        $id = '00000000-0000-0000-0000-000000000002';
-        $data = ['excerpt' => 'Third'];
+        $this->deprecated(function () {
+            $id = '00000000-0000-0000-0000-000000000002';
+            $data = ['excerpt' => 'Third'];
 
-        $this->assertTrue($this->Duplicates->mergeDuplicates('Articles', $id, $data));
-        $this->assertSame(
-            $data['excerpt'],
-            TableRegistry::getTableLocator()
-                ->get('Articles')
-                ->get($id)
-                ->get('excerpt')
-        );
+            $this->assertTrue($this->Duplicates->mergeDuplicates('Articles', $id, $data));
+            $this->assertSame(
+                $data['excerpt'],
+                TableRegistry::getTableLocator()
+                    ->get('Articles')
+                    ->get($id)
+                    ->get('excerpt')
+            );
+        });
     }
 
     public function testMergeDuplicatesWithInvalidID()
     {
-        $id = '00000000-0000-0000-0000-000000000404';
-        $data = ['excerpt' => 'Third'];
+        $this->deprecated(function () {
+            $id = '00000000-0000-0000-0000-000000000404';
+            $data = ['excerpt' => 'Third'];
 
-        $this->assertFalse($this->Duplicates->mergeDuplicates('Articles', $id, $data));
+            $this->assertFalse($this->Duplicates->mergeDuplicates('Articles', $id, $data));
+        });
+    }
+
+    /**
+     * Helper method for check deprecation methods
+     *
+     * @param callable $callable callable function that will receive asserts
+     * @return void
+     * @link https://github.com/cakephp/cakephp/blob/3.6.0/src/TestSuite/TestCase.php#L111-L126
+     */
+    public function deprecated($callable)
+    {
+        $errorLevel = error_reporting();
+        error_reporting(E_ALL ^ E_USER_DEPRECATED);
+        try {
+            $callable();
+        } finally {
+            error_reporting($errorLevel);
+        }
     }
 }
