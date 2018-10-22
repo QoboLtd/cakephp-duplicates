@@ -279,6 +279,11 @@ class DuplicatesTable extends Table
      */
     public function deleteDuplicates($model, array $ids)
     {
+        trigger_error(
+            sprintf('%s() is deprecated. ' . 'Use \Qobo\Duplicates\Manager instead.', __METHOD__),
+            E_USER_DEPRECATED
+        );
+
         $table = TableRegistry::getTableLocator()->get($model);
         foreach ($ids as $id) {
             $record = $table->find()
@@ -341,6 +346,11 @@ class DuplicatesTable extends Table
      */
     public function mergeDuplicates($model, $id, array $data)
     {
+        trigger_error(
+            sprintf('%s() is deprecated. ' . 'Use \Qobo\Duplicates\Manager instead.', __METHOD__),
+            E_USER_DEPRECATED
+        );
+
         $table = TableRegistry::getTableLocator()->get($model);
         $entity = $table->find()
             ->where([$table->getPrimaryKey() => $id])
