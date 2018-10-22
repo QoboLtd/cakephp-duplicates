@@ -40,7 +40,7 @@ class MapDuplicatesShell extends Shell
     public function main()
     {
         try {
-            $lock = new FileLock('import_' . md5(__FILE__) . '.lock');
+            $lock = new FileLock('import_' . md5(__FILE__));
         } catch (Exception $e) {
             $this->abort($e->getMessage());
         }
