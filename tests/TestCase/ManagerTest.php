@@ -101,9 +101,6 @@ class ManagerTest extends TestCase
 
     public function testProcess()
     {
-        // get duplcicates count
-        $count = $this->Duplicates->find('all')->count();
-
         $this->table = TableRegistry::get('Articles');
         $associations = $this->table->associations()->keys();
 
@@ -111,9 +108,10 @@ class ManagerTest extends TestCase
         $originalId = '00000000-0000-0000-0000-000000000002';
         $ids = [
             '00000000-0000-0000-0000-000000000003',
+            '00000000-0000-0000-0000-000000000004',
             '00000000-0000-0000-0000-000000000001' // invalid IDs are discarded
         ];
-        $invalidDuplicate = $this->table->get($ids[1], ['contain' => $associations]);
+        $invalidDuplicate = $this->table->get($ids[2], ['contain' => $associations]);
 
         $manager = new Manager($this->table, $this->table->get($originalId), $data);
 
@@ -122,15 +120,15 @@ class ManagerTest extends TestCase
         }
 
         $this->assertTrue($manager->process());
+        $this->assertSame(0, $this->Duplicates->find('all')->count());
         $this->assertSame(
-            [sprintf('Relevant entry not found, duplicate with ID "%s" will not be processed.', $ids[1])],
+            [sprintf('Relevant entry not found, duplicate with ID "%s" will not be processed.', $ids[2])],
             $manager->getErrors()
         );
         $this->assertSame($data['excerpt'], $this->table->get($originalId)->get('excerpt'));
 
         // assert invalid duplicate was not affected
-        $this->assertEquals($invalidDuplicate, $this->table->get($ids[1], ['contain' => $associations]));
-        $this->assertSame($count - 1, $this->Duplicates->find('all')->count());
+        $this->assertEquals($invalidDuplicate, $this->table->get($ids[2], ['contain' => $associations]));
 
         $query = $this->table->find('all')
             ->where(['id' => $ids[0]]);
@@ -141,24 +139,27 @@ class ManagerTest extends TestCase
 
         $this->assertEquals('00000000-0000-0000-0000-000000000002', $original->get('author_id'));
 
-        $expected = [
-            '00000000-0000-0000-0000-000000000001',
-            '00000000-0000-0000-0000-000000000002',
-            '00000000-0000-0000-0000-000000000003'
-        ];
         $comments = array_map(function ($comment) {
             return $comment->get('id');
         }, $original->get('comments'));
         sort($comments);
-
-        $this->assertEquals($expected, $comments);
+        $this->assertEquals([
+            '00000000-0000-0000-0000-000000000001',
+            '00000000-0000-0000-0000-000000000002',
+            '00000000-0000-0000-0000-000000000003'
+        ], $comments);
 
         $tags = array_map(function ($tag) {
             return $tag->get('id');
         }, $original->get('tags'));
         sort($tags);
 
-        $this->assertEquals($expected, $tags);
+        $this->assertEquals([
+            '00000000-0000-0000-0000-000000000001',
+            '00000000-0000-0000-0000-000000000002',
+            '00000000-0000-0000-0000-000000000003',
+            '00000000-0000-0000-0000-000000000004'
+        ], $tags);
 
         $query = $this->Duplicates->find('all')
             ->where(['id' => '00000000-0000-0000-0000-000000000001']);

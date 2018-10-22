@@ -36,5 +36,15 @@ class DuplicatesFixture extends TestFixture
             'created' => '2018-08-07 17:45:16',
             'modified' => '2018-08-07 17:45:16'
         ],
+        [
+            'id' => '00000000-0000-0000-0000-000000000002',
+            'model' => 'Articles',
+            'original_id' => '00000000-0000-0000-0000-000000000002',
+            'duplicate_id' => '00000000-0000-0000-0000-000000000004',
+            'rule' => 'byTitle',
+            'status' => 'pending',
+            'created' => '2018-10-22 16:56:06',
+            'modified' => '2018-10-22 16:56:06'
+        ],
     ];
 }
