@@ -120,7 +120,7 @@ class DuplicatesTableTest extends TestCase
         $expected = [
             'pagination' => ['count' => 1],
             'data' => [
-                ['id' => '00000000-0000-0000-0000-000000000002', 'value' => 'Second Article', 'count' => 1]
+                ['id' => '00000000-0000-0000-0000-000000000002', 'value' => 'Second article', 'count' => 1]
             ]
         ];
 
@@ -133,7 +133,7 @@ class DuplicatesTableTest extends TestCase
         $expected = [
             'pagination' => ['count' => 1],
             'data' => [
-                ['id' => '00000000-0000-0000-0000-000000000002', 'value' => 'Second Article', 'count' => 1]
+                ['id' => '00000000-0000-0000-0000-000000000002', 'value' => 'Second article', 'count' => 1]
             ]
         ];
 
