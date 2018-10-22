@@ -102,7 +102,11 @@ class DuplicatesControllerTest extends IntegrationTestCase
             'ids' => ['00000000-0000-0000-0000-000000000002']
         ];
 
-        $this->_sendRequest('/duplicates/duplicates/delete/Articles', 'DELETE', json_encode($data));
+        $this->_sendRequest(
+            '/duplicates/duplicates/delete/Articles/00000000-0000-0000-0000-000000000002',
+            'DELETE',
+            json_encode($data)
+        );
         $this->assertResponseCode(200);
         $this->assertJson($this->_getBodyAsString());
 
