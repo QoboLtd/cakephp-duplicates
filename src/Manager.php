@@ -27,27 +27,6 @@ final class Manager
     const ASSOCIATIONS = ['manyToMany', 'oneToMany'];
 
     /**
-     * Original entity.
-     *
-     * @var \Cake\Datasource\EntityInterface
-     */
-    private $original;
-
-    /**
-     * Duplicate entity.
-     *
-     * @var \Cake\Datasource\EntityInterface
-     */
-    private $duplicate;
-
-    /**
-     * Duplicate record entry in duplicates table.
-     *
-     * @var \Cake\Datasource\EntityInterface
-     */
-    private $entry;
-
-    /**
      * Duplicates table.
      *
      * @var \Cake\Datasource\RepositoryInterface
@@ -62,6 +41,13 @@ final class Manager
     private $target;
 
     /**
+     * Original entity.
+     *
+     * @var \Cake\Datasource\EntityInterface
+     */
+    private $original;
+
+    /**
      * Duplicates list.
      *
      * @var \Cake\Datasource\EntityInterface[]
@@ -71,7 +57,7 @@ final class Manager
     /**
      * Duplicates merging data.
      *
-     * @var array
+     * @var []
      */
     private $data = [];
 
@@ -87,50 +73,14 @@ final class Manager
      *
      * @param \Cake\Datasource\RepositoryInterface $table Target table instance
      * @param \Cake\Datasource\EntityInterface $original Original Entity
+     * @param array $data Request data
+     * @return void
      */
-    public function __construct(RepositoryInterface $table, EntityInterface $original)
+    public function __construct(RepositoryInterface $table, EntityInterface $original, array $data = [])
     {
         $this->table = TableRegistry::get('Qobo/Duplicates.Duplicates');
         $this->target = $table;
         $this->original = $original;
-    }
-
-    /**
-     * Duplicate entity setter.
-     *
-     * @param \Cake\Datasource\EntityInterface $duplicate Duplicate Entity
-     * @return void
-     */
-    public function addDuplicate(EntityInterface $duplicate) : void
-    {
-        $originalId = $this->original->get($this->target->getPrimaryKey());
-        $duplicateId = $duplicate->get($this->target->getPrimaryKey());
-
-        $entry = $this->table->find('all')->where([
-            'duplicate_id' => $duplicateId,
-            'original_id' => $originalId
-        ])->first();
-
-        // relevant entry not found in duplicates table, duplicate will not be added to the list.
-        if (! $entry instanceof EntityInterface) {
-            return;
-        }
-
-        $this->duplicates[] = [
-            'entry' => $entry,
-            // re-fetch duplicate entity with associated data
-            'entity' => $this->target->get($duplicateId, ['contain' => $this->target->associations()->keys()])
-        ];
-    }
-
-    /**
-     * Request data setter, to be used when merging duplicates with original entity.
-     *
-     * @param array $data Request data
-     * @return void
-     */
-    public function addMergeData(array $data) : void
-    {
         $this->data = $data;
     }
 
@@ -142,6 +92,31 @@ final class Manager
     public function getErrors() : array
     {
         return $this->errors;
+    }
+
+    /**
+     * Duplicate entity setter.
+     *
+     * @param \Cake\Datasource\EntityInterface $duplicate Duplicate Entity
+     * @return void
+     */
+    public function addDuplicate(EntityInterface $duplicate) : void
+    {
+        $entry = $this->fetchEntry($duplicate);
+
+        if (null === $entry) {
+            $this->errors[] = sprintf(
+                'Relevant entry not found, duplicate with ID "%s" will not be processed.',
+                $duplicate->get($this->target->getPrimaryKey())
+            );
+
+            return;
+        }
+
+        // re-fetch duplicate entity with associated data
+        $this->duplicates[] = $this->target->get($entry->get('duplicate_id'), [
+            'contain' => $this->target->associations()->keys()
+        ]);
     }
 
     /**
@@ -160,14 +135,11 @@ final class Manager
 
         $result = true;
         foreach ($this->duplicates as $duplicate) {
-            $this->entry = $duplicate['entry'];
-            $this->duplicate = $duplicate['entity'];
-
-            if (! $this->_process()) {
+            if (! $this->_process($duplicate)) {
                 $this->errors[] = sprintf(
                     'Failed to process %s duplicate with ID %s',
                     $this->target->getAlias(),
-                    $this->duplicate->get($this->target->getPrimaryKey())
+                    $duplicate->get($this->target->getPrimaryKey())
                 );
 
                 $result = false;
@@ -175,6 +147,22 @@ final class Manager
         }
 
         return $result;
+    }
+
+    /**
+     * Fetches duplicate table entry for specified entity.
+     *
+     * @param \Cake\Datasource\EntityInterface $duplicate Duplicate entity
+     * @return \Cake\Datasource\EntityInterface|null
+     */
+    private function fetchEntry(EntityInterface $duplicate) : ?EntityInterface
+    {
+        return $this->table->find('all')
+            ->where([
+                'duplicate_id' => $duplicate->get($this->target->getPrimaryKey()),
+                'original_id' => $this->original->get($this->target->getPrimaryKey())
+            ])
+            ->first();
     }
 
     /**
@@ -206,20 +194,21 @@ final class Manager
      * - Delete duplicate entity from corresponding table
      * - Link duplicate entity associated data with original entity
      *
+     * @param \Cake\Datasource\EntityInterface $duplicate Duplicate entity
      * @return bool
      */
-    private function _process() : bool
+    private function _process(EntityInterface $duplicate) : bool
     {
-        return $this->target->getConnection()->transactional(function () {
-            if (! $this->deleteEntry()) {
+        return $this->target->getConnection()->transactional(function () use ($duplicate) {
+            if (! $this->deleteEntry($this->fetchEntry($duplicate))) {
                 return false;
             }
 
-            if (! $this->deleteDuplicate()) {
+            if (! $this->deleteDuplicate($duplicate)) {
                 return false;
             }
 
-            if (! $this->inheritData()) {
+            if (! $this->inheritData($duplicate)) {
                 return false;
             }
 
@@ -230,32 +219,35 @@ final class Manager
     /**
      * Delete duplicate record entry from duplicates table.
      *
+     * @param \Cake\Datasource\EntityInterface $entry Duplicate entry
      * @return bool
      */
-    private function deleteEntry() : bool
+    private function deleteEntry(EntityInterface $entry) : bool
     {
-        return (bool)$this->table->delete($this->entry, ['atomic' => false]);
+        return (bool)$this->table->delete($entry, ['atomic' => false]);
     }
 
     /**
      * Delete duplicate entity.
      *
+     * @param \Cake\Datasource\EntityInterface $duplicate Duplicate entity
      * @return bool
      */
-    private function deleteDuplicate() : bool
+    private function deleteDuplicate(EntityInterface $duplicate) : bool
     {
-        return (bool)$this->target->delete($this->duplicate, ['atomic' => false]);
+        return (bool)$this->target->delete($duplicate, ['atomic' => false]);
     }
 
     /**
      * Inherit duplicate entity associated data.
      *
+     * @param \Cake\Datasource\EntityInterface $duplicate Duplicate entity
      * @return bool
      */
-    private function inheritData() : bool
+    private function inheritData(EntityInterface $duplicate) : bool
     {
         foreach ($this->target->associations() as $association) {
-            if (! $this->inheritDataByAssociation($association)) {
+            if (! $this->inheritDataByAssociation($duplicate, $association)) {
                 return false;
             }
         }
@@ -266,19 +258,20 @@ final class Manager
     /**
      * Inherit duplicate entity associated data per association.
      *
+     * @param \Cake\Datasource\EntityInterface $duplicate Duplicate entity
      * @param \Cake\ORM\Association $association Association instance
      * @return bool
      */
-    private function inheritDataByAssociation(Association $association) : bool
+    private function inheritDataByAssociation(EntityInterface $duplicate, Association $association) : bool
     {
         if (! in_array($association->type(), self::ASSOCIATIONS)) {
             return true;
         }
-        if (! $this->duplicate->has($association->getProperty())) {
+        if (! $duplicate->has($association->getProperty())) {
             return true;
         }
 
-        $data = $this->duplicate->get($association->getProperty());
+        $data = $duplicate->get($association->getProperty());
         if (! $association->link($this->original, $data, ['atomic' => false])) {
             return false;
         }

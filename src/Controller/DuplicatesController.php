@@ -144,9 +144,7 @@ class DuplicatesController extends AppController
         $table = TableRegistry::get($model);
 
         try {
-            $manager = new Manager($table, $table->get($id));
-
-            $manager->addMergeData((array)$this->request->getData('data'));
+            $manager = new Manager($table, $table->get($id), (array)$this->request->getData('data'));
 
             $query = $table->find('all')
                 ->where([$table->aliasField($table->getPrimaryKey()) . ' IN' => (array)$this->request->getData('ids')]);
