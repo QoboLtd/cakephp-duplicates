@@ -8,7 +8,7 @@ class ArticlesFixture extends TestFixture
     public $fields = [
         'id' => ['type' => 'uuid', 'null' => false],
         'author_id' => ['type' => 'uuid', 'null' => false],
-        'title' => ['type' => 'string', 'null' => true],
+        'title' => ['type' => 'string', 'null' => false],
         'excerpt' => ['type' => 'string', 'null' => true],
         'body' => 'text',
         'created' => ['type' => 'datetime', 'null' => false],
