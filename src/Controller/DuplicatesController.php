@@ -94,9 +94,7 @@ class DuplicatesController extends AppController
             $query = $table->find('all')
                 ->where([$table->aliasField($table->getPrimaryKey()) . ' IN' => (array)$this->request->getData('ids')]);
 
-            foreach ($query->all() as $duplicate) {
-                $manager->addDuplicate($duplicate);
-            }
+            $manager->addDuplicates($query->all());
 
             $success = $manager->process();
 
@@ -149,9 +147,7 @@ class DuplicatesController extends AppController
             $query = $table->find('all')
                 ->where([$table->aliasField($table->getPrimaryKey()) . ' IN' => (array)$this->request->getData('ids')]);
 
-            foreach ($query->all() as $duplicate) {
-                $manager->addDuplicate($duplicate);
-            }
+            $manager->addDuplicates($query->all());
 
             $success = $manager->process();
 

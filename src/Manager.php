@@ -13,6 +13,7 @@ namespace Qobo\Duplicates;
 
 use Cake\Datasource\EntityInterface;
 use Cake\Datasource\RepositoryInterface;
+use Cake\Datasource\ResultSetInterface;
 use Cake\ORM\Association;
 use Cake\ORM\TableRegistry;
 
@@ -92,6 +93,19 @@ final class Manager
     public function getErrors() : array
     {
         return $this->errors;
+    }
+
+    /**
+     * Duplicates resultset setter.
+     *
+     * @param \Cake\Datasource\ResultSetInterface $resultSet Duplicates result set
+     * @return void
+     */
+    public function addDuplicates(ResultSetInterface $resultSet) : void
+    {
+        foreach ($resultSet as $duplicate) {
+            $this->addDuplicate($duplicate);
+        }
     }
 
     /**

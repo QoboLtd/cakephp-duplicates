@@ -73,6 +73,29 @@ class ManagerTest extends TestCase
         $this->assertTrue($manager->process());
     }
 
+    public function testAddDuplicates()
+    {
+        $id = '00000000-0000-0000-0000-000000000003';
+
+        $manager = new Manager($this->table, $this->table->get('00000000-0000-0000-0000-000000000002'));
+        $query = $this->table->find()->where(['id' => $id]);
+        $manager->addDuplicates($query->all());
+
+        $this->assertTrue($manager->process());
+    }
+
+    public function testAddDuplicatesWithInvalidEntry()
+    {
+        // invalid duplicate id, no such entry
+        $id = '00000000-0000-0000-0000-000000000002';
+
+        $manager = new Manager($this->table, $this->table->get('00000000-0000-0000-0000-000000000002'));
+        $query = $this->table->find()->where(['id' => $id]);
+        $manager->addDuplicates($query->all());
+
+        $this->assertTrue($manager->process());
+    }
+
     public function testGetErrrors()
     {
         $id = '00000000-0000-0000-0000-000000000003';
