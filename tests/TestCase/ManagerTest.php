@@ -5,6 +5,7 @@ use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\Datasource\RepositoryInterface;
 use Cake\Datasource\ResultSetInterface;
+use Cake\Event\EventManager;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
@@ -132,12 +133,35 @@ class ManagerTest extends TestCase
         $manager->addDuplicate($this->table->get($id));
         $manager->process();
 
-        $this->assertSame(['Failed to merge duplicates'], $manager->getErrors());
+        $this->assertSame(
+            [sprintf('Failed to process Articles duplicate with ID %s', $id)],
+            $manager->getErrors()
+        );
     }
 
-    public function testProcess()
+    public function testGetErrorsWithFailedTransaction()
     {
-        $this->table = TableRegistry::get('Articles');
+        // prevent record deletion to fail the transactional operation
+        EventManager::instance()->on('Model.beforeDelete', function ($event) {
+            $event->stopPropagation();
+
+            return false;
+        });
+
+        $id = '00000000-0000-0000-0000-000000000003';
+
+        $manager = new Manager($this->table, $this->table->get('00000000-0000-0000-0000-000000000002'));
+        $manager->addDuplicate($this->table->get($id));
+        $manager->process();
+
+        $this->assertSame(
+            [sprintf('Failed to process Articles duplicate with ID %s', $id)],
+            $manager->getErrors()
+        );
+    }
+
+    public function testProcessSuccessful()
+    {
         $associations = $this->table->associations()->keys();
 
         $data = ['excerpt' => sprintf('Some really random excerpt %s', uniqid())];
@@ -153,20 +177,25 @@ class ManagerTest extends TestCase
         foreach ($ids as $id) {
             $manager->addDuplicate($this->table->get($id));
         }
+
         $this->assertTrue($manager->process());
 
-        $this->assertSame(0, $this->Duplicates->find('all')->count());
-        $this->assertSame($data['excerpt'], $this->table->get($originalId)->get('excerpt'));
+        // re-fetch original entity with all associated data
+        $original = $this->table->get($originalId, ['contain' => $associations]);
 
-        // assert invalid duplicate was not affected
-        $this->assertEquals($invalidDuplicate, $this->table->get($ids[2], ['contain' => $associations]));
+        $this->assertSame(0, $this->Duplicates->find('all')->count());
+        $this->assertSame($data['excerpt'], $original->get('excerpt'));
+
+        $this->assertEquals(
+            $invalidDuplicate,
+            $this->table->get($invalidDuplicate->get('id'), ['contain' => $associations]),
+            'Invalid duplicate Entity was modified'
+        );
 
         $query = $this->table->find('all')->where(['id' => $ids[0]]);
         $this->assertTrue($query->isEmpty());
 
-        // re-fetch original entity with all associated data
-        $original = $this->table->get($originalId, ['contain' => $associations]);
-        $this->assertEquals('00000000-0000-0000-0000-000000000002', $original->get('author_id'));
+        $this->assertEquals('00000000-0000-0000-0000-000000000002', $original->get('author_id'), 'Original Entity initial associated data were modified');
 
         $comments = array_map(function ($comment) {
             return $comment->get('id');
@@ -193,45 +222,81 @@ class ManagerTest extends TestCase
         $this->assertTrue($query->isEmpty());
     }
 
-    public function testProcessWithInvalidData()
+    /**
+     *
+     * @dataProvider invalidateProvider
+     */
+    public function testProcessFailure(array $data, string $callback = '')
     {
-        $count = $this->Duplicates->find('all')->count();
-        $this->table = TableRegistry::get('Articles');
+        // trigger callback
+        if ('' !== trim($callback)) {
+            call_user_func([$this, $callback]);
+        }
 
-        $originalId = '00000000-0000-0000-0000-000000000002';
+        $resultSet = $this->Duplicates->find('all')->all();
+        $associations = $this->table->associations()->keys();
+
         $ids = [
-            '00000000-0000-0000-0000-000000000003',
-            '00000000-0000-0000-0000-000000000004',
+            'original' => '00000000-0000-0000-0000-000000000002',
+            'duplicate' => '00000000-0000-0000-0000-000000000003'
+        ];
+        $expected = [
+            'original' => $this->table->get($ids['original'], ['contain' => $associations]),
+            'duplicate' => $this->table->get($ids['duplicate'], ['contain' => $associations])
         ];
 
-        // invalid merge data
-        $data = ['title' => null];
-        $manager = new Manager($this->table, $this->table->get($originalId), $data);
-        foreach ($ids as $id) {
-            $manager->addDuplicate($this->table->get($id));
-        }
-        $this->assertFalse($manager->process());
+        $manager = new Manager($this->table, $this->table->get($ids['original']), $data);
+        $manager->addDuplicate($this->table->get($ids['duplicate']));
 
-        // duplicates table was not affected
-        $this->assertSame($count, $this->Duplicates->find('all')->count());
+        $this->assertFalse($manager->process(), 'Duplicates processing completed successfully');
 
-        $query = $this->table->find('all')->where(['id' => $ids[0]]);
-        $this->assertFalse($query->isEmpty());
+        $this->assertEquals($resultSet, $this->Duplicates->find('all')->all(), 'Duplicate table entries were affected');
 
-        // re-fetch original entity with all associated data
-        $original = $this->table->get($originalId, ['contain' => $this->table->associations()->keys()]);
-        $this->assertEquals('00000000-0000-0000-0000-000000000002', $original->get('author_id'));
+        $this->assertEquals($expected['original'], $this->table->get($ids['original'], ['contain' => $associations]), 'Original entity was modifed');
+        $this->assertEquals($expected['duplicate'], $this->table->get($ids['duplicate'], ['contain' => $associations]), 'Duplicate entity was modifed');
+    }
 
-        $comments = array_map(function ($comment) {
-            return $comment->get('id');
-        }, $original->get('comments'));
-        sort($comments);
-        $this->assertEquals(['00000000-0000-0000-0000-000000000003'], $comments);
+    public function invalidateProvider()
+    {
+        return [
+            [['title' => null]],
+            [[], 'preventEntryDeletion'],
+            [[], 'preventDuplicateDeletion'],
+            [[], 'preventAssociatedLink']
+        ];
+    }
 
-        $tags = array_map(function ($tag) {
-            return $tag->get('id');
-        }, $original->get('tags'));
-        sort($tags);
-        $this->assertEquals(['00000000-0000-0000-0000-000000000003'], $tags);
+    private function preventEntryDeletion()
+    {
+        // prevent entry record deletion to fail the transactional operation
+        EventManager::instance()->on('Model.beforeDelete', function ($event) {
+            if ('Duplicates' === $event->getSubject()->getAlias()) {
+                $event->stopPropagation();
+
+                return false;
+            }
+        });
+    }
+
+    private function preventDuplicateDeletion()
+    {
+        // prevent duplicate entity deletion to fail the transactional operation
+        EventManager::instance()->on('Model.beforeDelete', function ($event) {
+            if ('Articles' === $event->getSubject()->getAlias()) {
+                $event->stopPropagation();
+
+                return false;
+            }
+        });
+    }
+
+    private function preventAssociatedLink()
+    {
+        // prevent associated record link to fail the transactional operation
+        EventManager::instance()->on('Model.beforeSave', function ($event) {
+            if ('Comments' === $event->getSubject()->getAlias()) {
+                throw new \PDOException();
+            }
+        });
     }
 }
