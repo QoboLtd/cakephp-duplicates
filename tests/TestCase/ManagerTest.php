@@ -123,34 +123,19 @@ class ManagerTest extends TestCase
         );
     }
 
-    public function testGetErrorsWithInvalidData()
+    /**
+     * @dataProvider invalidateProvider
+     */
+    public function testGetErrorsWithInvalidData(array $data, string $callback = '')
     {
+        // trigger callback
+        if ('' !== trim($callback)) {
+            call_user_func([$this, $callback]);
+        }
+
         $id = '00000000-0000-0000-0000-000000000003';
-        // invalid merge data
-        $data = ['title' => null];
 
         $manager = new Manager($this->table, $this->table->get('00000000-0000-0000-0000-000000000002'), $data);
-        $manager->addDuplicate($this->table->get($id));
-        $manager->process();
-
-        $this->assertSame(
-            [sprintf('Failed to process Articles duplicate with ID %s', $id)],
-            $manager->getErrors()
-        );
-    }
-
-    public function testGetErrorsWithFailedTransaction()
-    {
-        // prevent record deletion to fail the transactional operation
-        EventManager::instance()->on('Model.beforeDelete', function ($event) {
-            $event->stopPropagation();
-
-            return false;
-        });
-
-        $id = '00000000-0000-0000-0000-000000000003';
-
-        $manager = new Manager($this->table, $this->table->get('00000000-0000-0000-0000-000000000002'));
         $manager->addDuplicate($this->table->get($id));
         $manager->process();
 

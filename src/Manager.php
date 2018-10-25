@@ -246,8 +246,6 @@ final class Manager
                     return false;
                 }
             } catch (Exception $e) {
-                $this->errors[] = $e->getMessage();
-
                 return false;
             }
 
