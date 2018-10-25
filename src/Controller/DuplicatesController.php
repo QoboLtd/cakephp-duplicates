@@ -12,6 +12,9 @@
 namespace Qobo\Duplicates\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
+use Exception;
+use Qobo\Duplicates\Manager;
 
 /**
  * Duplicates Controller
@@ -76,16 +79,35 @@ class DuplicatesController extends AppController
      * Delete method.
      *
      * @param string $model Model name
+     * @param string $id Original ID
      * @return \Cake\Http\Response|void
      */
-    public function delete($model)
+    public function delete($model, $id)
     {
         $this->request->allowMethod('delete');
 
-        $success = $this->Duplicates->deleteDuplicates($model, (array)$this->request->getData('ids'));
+        $table = TableRegistry::get($model);
 
-        $this->set('success', $success);
-        $success ? $this->set('data', []) : $this->set('error', 'Failed to delete duplicates');
+        try {
+            $manager = new Manager($table, $table->get($id));
+
+            $query = $table->find('all')
+                ->where([$table->aliasField($table->getPrimaryKey()) . ' IN' => (array)$this->request->getData('ids')]);
+
+            $manager->addDuplicates($query->all());
+
+            $success = $manager->process();
+
+            $this->set('success', $success);
+            $success ? $this->set('data', []) : $this->set('error', sprintf(
+                'Failed to delete duplicates: %s',
+                implode(', ', $manager->getErrors())
+            ));
+        } catch (Exception $e) {
+            $this->set('success', false);
+            $this->set('error', sprintf('Failed to delete duplicates: %s', $e->getMessage()));
+        }
+
         $this->set('_serialize', ['success', 'data', 'error']);
     }
 
@@ -117,24 +139,28 @@ class DuplicatesController extends AppController
     {
         $this->request->allowMethod('post');
 
-        if (! $this->Duplicates->mergeDuplicates($model, $id, (array)$this->request->getData('data'))) {
-            $this->set('success', false);
-            $this->set('error', 'Failed to merge duplicates');
-            $this->set('_serialize', ['success', 'error']);
+        $table = TableRegistry::get($model);
 
-            return;
+        try {
+            $manager = new Manager($table, $table->get($id), (array)$this->request->getData('data'));
+
+            $query = $table->find('all')
+                ->where([$table->aliasField($table->getPrimaryKey()) . ' IN' => (array)$this->request->getData('ids')]);
+
+            $manager->addDuplicates($query->all());
+
+            $success = $manager->process();
+
+            $this->set('success', $success);
+            $success ? $this->set('data', []) : $this->set('error', sprintf(
+                'Failed to merge duplicates: %s',
+                implode(', ', $manager->getErrors())
+            ));
+        } catch (Exception $e) {
+            $this->set('success', false);
+            $this->set('error', sprintf('Failed to merge duplicates: %s', $e->getMessage()));
         }
 
-        if (! $this->Duplicates->deleteDuplicates($model, (array)$this->request->getData('ids'))) {
-            $this->set('success', false);
-            $this->set('error', 'Failed to delete merged duplicates');
-            $this->set('_serialize', ['success', 'error']);
-
-            return;
-        }
-
-        $this->set('success', true);
-        $this->set('data', []);
-        $this->set('_serialize', ['success', 'data']);
+        $this->set('_serialize', ['success', 'data', 'error']);
     }
 }

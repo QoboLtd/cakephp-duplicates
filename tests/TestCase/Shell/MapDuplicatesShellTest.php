@@ -75,6 +75,6 @@ class MapDuplicatesShellTest extends ConsoleIntegrationTestCase
         $table = TableRegistry::getTableLocator()->get('Qobo/Duplicates.Duplicates');
 
         $this->assertSame(null, $this->MapDuplicatesShell->main());
-        $this->assertCount(3, $table->find()->all());
+        $this->assertCount(4, $table->find()->all());
     }
 }
