@@ -1,5 +1,5 @@
 <?php
-namespace Qobo\Duplicates\Filter;
+namespace Qobo\Duplicates\Test\TestCase\Filter;
 
 use Cake\TestSuite\TestCase;
 use Qobo\Duplicates\Filter\StartsWithFilter;

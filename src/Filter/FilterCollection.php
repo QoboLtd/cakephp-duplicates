@@ -29,7 +29,7 @@ final class FilterCollection implements IteratorAggregate
     /**
      * Constructor method.
      *
-     * @param array $filters List of filter instances
+     * @param mixed[] $filters List of filter instances
      */
     public function __construct(FilterInterface ...$filters)
     {

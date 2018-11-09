@@ -41,14 +41,14 @@ class DuplicatesControllerTest extends IntegrationTestCase
         parent::tearDown();
     }
 
-    public function testIndexUnauthenticated()
+    public function testIndexUnauthenticated(): void
     {
         $this->get('/duplicates/duplicates/items/Articles/byTitle');
 
         $this->assertResponseCode(403);
     }
 
-    public function testIndex()
+    public function testIndex(): void
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 
@@ -64,7 +64,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         $this->assertNotEmpty($response->data);
     }
 
-    public function testView()
+    public function testView(): void
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 
@@ -82,7 +82,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         $this->assertInternalType('array', $response->data->virtualFields);
     }
 
-    public function testViewWithInvalidID()
+    public function testViewWithInvalidID(): void
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 
@@ -98,7 +98,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         );
     }
 
-    public function testDelete()
+    public function testDelete(): void
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 
@@ -122,7 +122,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         $this->assertSame([], $response->data);
     }
 
-    public function testDeleteWithInvalidID()
+    public function testDeleteWithInvalidID(): void
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 
@@ -143,7 +143,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         $this->assertSame('Failed to delete duplicates: Record not found in table "articles"', $response->error);
     }
 
-    public function testFalsePositive()
+    public function testFalsePositive(): void
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 
@@ -158,7 +158,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         $this->assertSame([], $response->data);
     }
 
-    public function testMerge()
+    public function testMerge(): void
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 
@@ -191,7 +191,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         $this->assertSame([], $response->data);
     }
 
-    public function testMergeWithInvalidID()
+    public function testMergeWithInvalidID(): void
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 

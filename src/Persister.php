@@ -24,7 +24,7 @@ final class Persister
     /**
      * Duplicates Rule instance.
      *
-     * @var \Qobo\Duplicates\Rule
+     * @var \Qobo\Duplicates\RuleInterface
      */
     private $rule;
 
@@ -46,11 +46,11 @@ final class Persister
      * Constructor method.
      *
      * @param \Cake\Datasource\RepositoryInterface $table Target table instance
-     * @param \Qobo\Duplicates\Rule $rule Rule instance
+     * @param \Qobo\Duplicates\RuleInterface $rule Rule instance
      * @param \Cake\Datasource\ResultSetInterface $resultSet Result set
      * @return void
      */
-    public function __construct(RepositoryInterface $table, Rule $rule, ResultSetInterface $resultSet)
+    public function __construct(RepositoryInterface $table, RuleInterface $rule, ResultSetInterface $resultSet)
     {
         $this->table = $table;
         $this->rule = $rule;
@@ -62,7 +62,7 @@ final class Persister
      *
      * @return bool
      */
-    public function execute()
+    public function execute(): bool
     {
         $primaryKey = $this->table->getPrimaryKey();
         $data = [];
@@ -88,15 +88,15 @@ final class Persister
             return true;
         }
 
-        return $this->save($data);
+        return $this->save($data) ? true : false;
     }
 
     /**
      * Validation errors getter.
      *
-     * @return array
+     * @return mixed[]
      */
-    public function getErrors()
+    public function getErrors(): array
     {
         return $this->errors;
     }
@@ -104,10 +104,10 @@ final class Persister
     /**
      * Persists duplicate records into the database.
      *
-     * @param array $data Records data
+     * @param mixed[] $data Records data
      * @return bool
      */
-    private function save(array $data)
+    private function save(array $data): bool
     {
         $table = TableRegistry::getTableLocator()->get('Qobo/Duplicates.Duplicates');
         $entities = $table->newEntities($data);
@@ -128,7 +128,7 @@ final class Persister
      *
      * @return \Cake\Datasource\EntityInterface
      */
-    public function getOriginal()
+    public function getOriginal(): \Cake\Datasource\EntityInterface
     {
         $resultSet = clone $this->resultSet;
 
@@ -141,7 +141,7 @@ final class Persister
      * @param \Cake\Datasource\EntityInterface $entity Entity instance
      * @return bool
      */
-    public function isOriginal(EntityInterface $entity)
+    public function isOriginal(EntityInterface $entity): bool
     {
         $primaryKey = $this->table->getPrimaryKey();
 
@@ -154,7 +154,7 @@ final class Persister
      * @param \Cake\Datasource\EntityInterface $entity Entity instance
      * @return bool
      */
-    public function isPersisted(EntityInterface $entity)
+    public function isPersisted(EntityInterface $entity): bool
     {
         $table = TableRegistry::getTableLocator()->get('Qobo/Duplicates.Duplicates');
         $primaryKey = $this->table->getPrimaryKey();

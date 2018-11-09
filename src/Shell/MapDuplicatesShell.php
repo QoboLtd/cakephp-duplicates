@@ -13,6 +13,7 @@ namespace Qobo\Duplicates\Shell;
 
 use Cake\Console\Shell;
 use Cake\ORM\TableRegistry;
+use Exception;
 use Qobo\Utils\Utility\Lock\FileLock;
 
 /**
@@ -49,6 +50,9 @@ class MapDuplicatesShell extends Shell
             $this->abort('Map duplicates is already in progress');
         }
 
+        /**
+         * @var \Qobo\Duplicates\Model\Table\DuplicatesTable $table
+         */
         $table = TableRegistry::getTableLocator()->get('Qobo/Duplicates.Duplicates');
         $result = $table->mapDuplicates();
 

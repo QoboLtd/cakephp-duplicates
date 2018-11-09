@@ -1,5 +1,5 @@
 <?php
-namespace Qobo\Duplicates\Filter;
+namespace Qobo\Duplicates\Test\TestCase;
 
 use Cake\TestSuite\TestCase;
 use InvalidArgumentException;
@@ -12,6 +12,11 @@ use RuntimeException;
 
 class RuleTest extends TestCase
 {
+    /**
+     * @var \Qobo\Duplicates\RuleInterface $instance
+     */
+    protected $instance;
+
     /**
      * {@inheritDoc}
      */
@@ -37,12 +42,12 @@ class RuleTest extends TestCase
         parent::tearDown();
     }
 
-    public function testGetName()
+    public function testGetName(): void
     {
         $this->assertSame('foobar', $this->instance->getName());
     }
 
-    public function testGetFilters()
+    public function testGetFilters(): void
     {
         $this->assertInstanceOf(FilterCollection::class, $this->instance->getFilters());
         foreach ($this->instance->getFilters() as $filter) {
@@ -50,16 +55,7 @@ class RuleTest extends TestCase
         }
     }
 
-    public function testConstructWithInvalidNameType()
-    {
-        $this->expectException(InvalidArgumentException::class);
-
-        new Rule(['foobar'], new FilterCollection(...[
-            new StartsWithFilter(['field' => 'title', 'length' => 10])
-        ]));
-    }
-
-    public function testConstructWithInvalidNameString()
+    public function testConstructWithInvalidNameString(): void
     {
         $this->expectException(InvalidArgumentException::class);
 

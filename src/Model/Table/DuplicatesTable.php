@@ -114,13 +114,13 @@ class DuplicatesTable extends Table
      *
      * Returns all validation errors.
      *
-     * @return array
+     * @return mixed[]
      */
-    public function mapDuplicates()
+    public function mapDuplicates(): array
     {
         $modulesData = [];
         foreach (Utility::findDirs(Configure::readOrFail('Duplicates.path')) as $model) {
-            $config = json_decode(json_encode((new ModuleConfig(ConfigType::DUPLICATES(), $model))->parse()), true);
+            $config = (new ModuleConfig(ConfigType::DUPLICATES(), $model))->parseToArray();
             if (empty($config)) {
                 continue;
             }
@@ -137,10 +137,10 @@ class DuplicatesTable extends Table
      * Map Model duplicates.
      *
      * @param \Cake\Datasource\RepositoryInterface $table Table instance
-     * @param array $config Duplicates configuration
+     * @param mixed[] $config Duplicates configuration
      * @return void
      */
-    private function mapByModel(RepositoryInterface $table, array $config)
+    private function mapByModel(RepositoryInterface $table, array $config): void
     {
         foreach ($config as $ruleName => $filtersConfig) {
             $filters = array_map(function ($conf) {
@@ -158,7 +158,7 @@ class DuplicatesTable extends Table
      * @param \Cake\Datasource\RepositoryInterface $table Table instance
      * @return void
      */
-    private function mapByRule(RuleInterface $rule, RepositoryInterface $table)
+    private function mapByRule(RuleInterface $rule, RepositoryInterface $table): void
     {
         $finder = new Finder($table, $rule, 10);
 
@@ -177,7 +177,7 @@ class DuplicatesTable extends Table
      * @param \Cake\Datasource\ResultSetInterface $resultSet Result set
      * @return void
      */
-    private function saveEntities(RuleInterface $rule, RepositoryInterface $table, ResultSetInterface $resultSet)
+    private function saveEntities(RuleInterface $rule, RepositoryInterface $table, ResultSetInterface $resultSet): void
     {
         $persister = new Persister($table, $rule, $resultSet);
         $persister->execute();
@@ -192,10 +192,10 @@ class DuplicatesTable extends Table
      *
      * @param string $model Model name
      * @param string $rule Rule name
-     * @param array $options Query options
-     * @return array
+     * @param mixed[] $options Query options
+     * @return mixed[]
      */
-    public function fetchByModelAndRule($model, $rule, array $options)
+    public function fetchByModelAndRule(string $model, string $rule, array $options): array
     {
         $table = TableRegistry::getTableLocator()->get($model);
 
@@ -231,9 +231,9 @@ class DuplicatesTable extends Table
      *
      * @param string $id Original ID
      * @param string $rule Rule name
-     * @return array
+     * @return mixed[]
      */
-    public function fetchByOriginalIDAndRule($id, $rule)
+    public function fetchByOriginalIDAndRule(string $id, string $rule): array
     {
         $resultSet = $this->find('all')
             ->select(['duplicate_id', 'model'])
@@ -274,10 +274,10 @@ class DuplicatesTable extends Table
      * Deletes duplicates by IDs.
      *
      * @param string $model Model name
-     * @param array $ids Duplicate IDs
+     * @param mixed[] $ids Duplicate IDs
      * @return bool
      */
-    public function deleteDuplicates($model, array $ids)
+    public function deleteDuplicates(string $model, array $ids): bool
     {
         trigger_error(
             sprintf('%s() is deprecated. ' . 'Use \Qobo\Duplicates\Manager instead.', __METHOD__),
@@ -286,6 +286,9 @@ class DuplicatesTable extends Table
 
         $table = TableRegistry::getTableLocator()->get($model);
         foreach ($ids as $id) {
+            /**
+             * @var \Cake\Datasource\EntityInterface $record
+             */
             $record = $table->find()
                 ->where([$table->getPrimaryKey() => $id])
                 ->first();
@@ -293,6 +296,9 @@ class DuplicatesTable extends Table
                 return false;
             }
 
+            /**
+             * @var \Cake\Datasource\EntityInterface $entity
+             */
             $entity = $this->find()
                 ->where(['OR' => ['duplicate_id' => $id, 'original_id' => $id]])
                 ->first();
@@ -313,10 +319,10 @@ class DuplicatesTable extends Table
      * Flags duplicates as false positive by rule name and duplicate IDs.
      *
      * @param string $rule Rule name
-     * @param array $ids Duplicate IDs
+     * @param mixed[] $ids Duplicate IDs
      * @return bool
      */
-    public function falsePositiveByRuleAndIDs($rule, array $ids)
+    public function falsePositiveByRuleAndIDs(string $rule, array $ids): bool
     {
         $resultSet = $this->find('all')
             ->where(['duplicate_id IN' => $ids, 'rule' => $rule])
@@ -341,10 +347,10 @@ class DuplicatesTable extends Table
      *
      * @param string $model Model name
      * @param string $id Original id
-     * @param array $data Merge data
+     * @param mixed[] $data Merge data
      * @return bool
      */
-    public function mergeDuplicates($model, $id, array $data)
+    public function mergeDuplicates(string $model, string $id, array $data): bool
     {
         trigger_error(
             sprintf('%s() is deprecated. ' . 'Use \Qobo\Duplicates\Manager instead.', __METHOD__),

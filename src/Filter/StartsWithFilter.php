@@ -14,9 +14,11 @@ namespace Qobo\Duplicates\Filter;
 final class StartsWithFilter extends AbstractFilter
 {
     /**
-     * {@inheritDoc}
+     * Filter value getter.
+     *
+     * @return string
      */
-    public function getValue()
+    public function getValue(): string
     {
         return sprintf('SUBSTR(%s, 1, %d)', $this->get('field'), $this->get('length'));
     }

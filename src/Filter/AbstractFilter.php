@@ -23,7 +23,7 @@ abstract class AbstractFilter implements FilterInterface
     /**
      * Constructor method.
      *
-     * @param array $properties Properties
+     * @param mixed[] $properties Properties
      */
     public function __construct(array $properties)
     {
@@ -31,9 +31,12 @@ abstract class AbstractFilter implements FilterInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Property getter.
+     *
+     * @param string $property Property name
+     * @return string
      */
-    final public function get($property)
+    final public function get($property): string
     {
         return array_key_exists($property, $this->properties) ? $this->properties[$property] : '';
     }

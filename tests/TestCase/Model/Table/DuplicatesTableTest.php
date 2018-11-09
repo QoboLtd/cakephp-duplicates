@@ -37,7 +37,11 @@ class DuplicatesTableTest extends TestCase
     {
         parent::setUp();
 
-        $this->Duplicates = TableRegistry::getTableLocator()->get('Qobo/Duplicates.Duplicates');
+        /**
+         * @var \Qobo\Duplicates\Model\Table\DuplicatesTable $table
+         */
+        $table = TableRegistry::getTableLocator()->get('Qobo/Duplicates.Duplicates');
+        $this->Duplicates = $table;
     }
 
     /**
@@ -57,7 +61,7 @@ class DuplicatesTableTest extends TestCase
      *
      * @return void
      */
-    public function testInitialize()
+    public function testInitialize(): void
     {
         $this->assertInstanceOf(DuplicatesTable::class, $this->Duplicates);
 
@@ -75,7 +79,7 @@ class DuplicatesTableTest extends TestCase
      *
      * @return void
      */
-    public function testValidationDefault()
+    public function testValidationDefault(): void
     {
         $this->assertInstanceOf(Validator::class, $this->Duplicates->validationDefault(new Validator()));
     }
@@ -85,12 +89,12 @@ class DuplicatesTableTest extends TestCase
      *
      * @return void
      */
-    public function testBuildRules()
+    public function testBuildRules(): void
     {
         $this->assertInstanceOf(RulesChecker::class, $this->Duplicates->buildRules(new RulesChecker()));
     }
 
-    public function testSave()
+    public function testSave(): void
     {
         $data = [
             'model' => 'Articles',
@@ -107,7 +111,7 @@ class DuplicatesTableTest extends TestCase
         $this->assertEmpty(array_diff($data, $entity->toArray()));
     }
 
-    public function testMapDuplicates()
+    public function testMapDuplicates(): void
     {
         // overwrite Utils plugin configuration
         Configure::write('CsvMigrations.modules.path', Configure::read('Duplicates.path'));
@@ -115,7 +119,7 @@ class DuplicatesTableTest extends TestCase
         $this->assertSame([], $this->Duplicates->mapDuplicates());
     }
 
-    public function testFetchByModelAndRule()
+    public function testFetchByModelAndRule(): void
     {
         $expected = [
             'pagination' => ['count' => 1],
@@ -127,7 +131,7 @@ class DuplicatesTableTest extends TestCase
         $this->assertSame($expected, $this->Duplicates->fetchByModelAndRule('Articles', 'byTitle', []));
     }
 
-    public function testFetchByModelAndRuleWithOptions()
+    public function testFetchByModelAndRuleWithOptions(): void
     {
         $options = ['page' => 0, 'size' => 1];
         $expected = [
@@ -148,7 +152,7 @@ class DuplicatesTableTest extends TestCase
         $this->assertSame($expected, $this->Duplicates->fetchByModelAndRule('Articles', 'byTitle', $options));
     }
 
-    public function testFetchByOriginalIDAndRule()
+    public function testFetchByOriginalIDAndRule(): void
     {
         $result = $this->Duplicates->fetchByOriginalIDAndRule('00000000-0000-0000-0000-000000000002', 'byTitle');
 
@@ -173,14 +177,14 @@ class DuplicatesTableTest extends TestCase
         $this->assertSame([], $result['virtualFields']);
     }
 
-    public function testFetchByOriginalIDAndRuleWithInvalidID()
+    public function testFetchByOriginalIDAndRuleWithInvalidID(): void
     {
         $result = $this->Duplicates->fetchByOriginalIDAndRule('00000000-0000-0000-0000-000000000404', 'byTitle');
 
         $this->assertSame([], $result);
     }
 
-    public function testDeleteDuplicates()
+    public function testDeleteDuplicates(): void
     {
         $this->deprecated(function () {
             $ids = ['00000000-0000-0000-0000-000000000002'];
@@ -199,7 +203,7 @@ class DuplicatesTableTest extends TestCase
         });
     }
 
-    public function testDeleteDuplicatesWithInvalidID()
+    public function testDeleteDuplicatesWithInvalidID(): void
     {
         $this->deprecated(function () {
             // get duplcicates count
@@ -222,7 +226,7 @@ class DuplicatesTableTest extends TestCase
         });
     }
 
-    public function testFalsePositiveByRuleAndIDs()
+    public function testFalsePositiveByRuleAndIDs(): void
     {
         $ids = ['00000000-0000-0000-0000-000000000003'];
 
@@ -232,7 +236,7 @@ class DuplicatesTableTest extends TestCase
         $this->assertSame('processed', $entity->get('status'));
     }
 
-    public function testFalsePositiveByRuleAndIDsWithInvalidID()
+    public function testFalsePositiveByRuleAndIDsWithInvalidID(): void
     {
         $ids = ['00000000-0000-0000-0000-000000000404'];
         $resultSet = $this->Duplicates->find()->all();
@@ -241,7 +245,7 @@ class DuplicatesTableTest extends TestCase
         $this->assertEquals($resultSet, $this->Duplicates->find()->all());
     }
 
-    public function testMergeDuplicates()
+    public function testMergeDuplicates(): void
     {
         $this->deprecated(function () {
             $id = '00000000-0000-0000-0000-000000000002';
@@ -258,7 +262,7 @@ class DuplicatesTableTest extends TestCase
         });
     }
 
-    public function testMergeDuplicatesWithInvalidID()
+    public function testMergeDuplicatesWithInvalidID(): void
     {
         $this->deprecated(function () {
             $id = '00000000-0000-0000-0000-000000000404';

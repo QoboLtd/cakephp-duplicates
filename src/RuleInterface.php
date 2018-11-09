@@ -8,12 +8,12 @@ interface RuleInterface
      *
      * @return string
      */
-    public function getName();
+    public function getName(): string;
 
     /**
      * Rule filters getter.
      *
-     * @return array
+     * @return \Qobo\Duplicates\Filter\FilterCollection
      */
-    public function getFilters();
+    public function getFilters(): \Qobo\Duplicates\Filter\FilterCollection;
 }

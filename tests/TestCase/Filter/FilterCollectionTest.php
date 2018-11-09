@@ -1,10 +1,12 @@
 <?php
-namespace Qobo\Duplicates\Filter;
+namespace Qobo\Duplicates\Test\TestCase\Filter;
 
 use Cake\TestSuite\TestCase;
+use Qobo\Duplicates\Filter\EndsWithFilter;
 use Qobo\Duplicates\Filter\ExactFilter;
 use Qobo\Duplicates\Filter\FilterCollection;
 use Qobo\Duplicates\Filter\FilterInterface;
+use Qobo\Duplicates\Filter\StartsWithFilter;
 
 class FilterCollectionTest extends TestCase
 {

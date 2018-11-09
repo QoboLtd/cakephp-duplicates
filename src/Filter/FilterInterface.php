@@ -21,7 +21,7 @@ interface FilterInterface
      *
      * @return string
      */
-    public function getValue();
+    public function getValue(): string;
 
     /**
      * Property getter.
@@ -29,5 +29,5 @@ interface FilterInterface
      * @param string $property Property name
      * @return string
      */
-    public function get($property);
+    public function get(string $property): string;
 }

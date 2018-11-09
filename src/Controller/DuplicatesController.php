@@ -41,9 +41,9 @@ class DuplicatesController extends AppController
      *
      * @param string $model Model name
      * @param string $rule Rule name
-     * @return \Cake\Http\Response|void
+     * @return \Cake\Http\Response|void|null
      */
-    public function items($model, $rule)
+    public function items(string $model, string $rule)
     {
         $this->request->allowMethod('get');
 
@@ -60,9 +60,9 @@ class DuplicatesController extends AppController
      *
      * @param string $id Original ID
      * @param string $rule Rule name
-     * @return \Cake\Http\Response|void
+     * @return \Cake\Http\Response|void|null
      */
-    public function view($id, $rule)
+    public function view(string $id, string $rule)
     {
         $this->request->allowMethod('get');
 
@@ -80,9 +80,9 @@ class DuplicatesController extends AppController
      *
      * @param string $model Model name
      * @param string $id Original ID
-     * @return \Cake\Http\Response|void
+     * @return \Cake\Http\Response|void|null
      */
-    public function delete($model, $id)
+    public function delete(string $model, string $id)
     {
         $this->request->allowMethod('delete');
 
@@ -115,9 +115,9 @@ class DuplicatesController extends AppController
      * False positive method.
      *
      * @param string $rule Rule name
-     * @return \Cake\Http\Response|void
+     * @return \Cake\Http\Response|void|null
      */
-    public function falsePositive($rule)
+    public function falsePositive(string $rule)
     {
         $this->request->allowMethod('post');
 
@@ -133,9 +133,9 @@ class DuplicatesController extends AppController
      *
      * @param string $model Model name
      * @param string $id Original ID
-     * @return \Cake\Http\Response|void
+     * @return \Cake\Http\Response|void|null
      */
-    public function merge($model, $id)
+    public function merge(string $model, string $id)
     {
         $this->request->allowMethod('post');
 

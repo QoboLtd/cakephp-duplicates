@@ -47,14 +47,14 @@ final class Manager
     /**
      * Duplicates list.
      *
-     * @var \Cake\Datasource\EntityInterface[]
+     * @var array
      */
     private $duplicates = [];
 
     /**
      * Duplicates merging data.
      *
-     * @var []
+     * @var array $data
      */
     private $data = [];
 
@@ -83,7 +83,7 @@ final class Manager
      *
      * @param \Cake\Datasource\RepositoryInterface $table Target table instance
      * @param \Cake\Datasource\EntityInterface $original Original entity
-     * @param array $data Request data
+     * @param mixed[] $data Request data
      * @return void
      */
     public function __construct(RepositoryInterface $table, EntityInterface $original, array $data = [])
@@ -318,7 +318,7 @@ final class Manager
      * Retrieves duplicate entity associated data that will be inherited by the original entity.
      *
      * @param \Cake\Datasource\EntityInterface $duplicate Duplicate entity
-     * @return array
+     * @return mixed[]
      */
     private function getInheritData(EntityInterface $duplicate) : array
     {

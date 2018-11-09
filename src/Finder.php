@@ -18,7 +18,7 @@ final class Finder
     /**
      * Duplicates Rule instance.
      *
-     * @var \Qobo\Duplicates\Rule
+     * @var \Qobo\Duplicates\RuleInterface
      */
     private $rule;
 
@@ -40,15 +40,15 @@ final class Finder
      * Constructor method.
      *
      * @param \Cake\Datasource\RepositoryInterface $table Target table instance
-     * @param \Qobo\Duplicates\Rule $rule Rule instance
+     * @param \Qobo\Duplicates\RuleInterface $rule Rule instance
      * @param int $limit Query limit
      * @return void
      */
-    public function __construct(RepositoryInterface $table, Rule $rule, $limit = 0)
+    public function __construct(RepositoryInterface $table, RuleInterface $rule, int $limit = 0)
     {
         $this->table = $table;
         $this->rule = $rule;
-        $this->limit = (int)$limit;
+        $this->limit = $limit;
 
         $this->resetOffset();
     }
@@ -56,9 +56,9 @@ final class Finder
     /**
      * Executes duplicate records retrieval logic.
      *
-     * @return array
+     * @return mixed[]
      */
-    public function execute()
+    public function execute(): array
     {
         $query = $this->buildQuery();
 
@@ -77,7 +77,7 @@ final class Finder
      *
      * @return int
      */
-    public function getOffset()
+    public function getOffset(): int
     {
         return $this->offset;
     }
@@ -88,9 +88,9 @@ final class Finder
      * @param int $offset Query offset
      * @return void
      */
-    public function setOffset($offset)
+    public function setOffset(int $offset): void
     {
-        $this->offset = (int)$offset;
+        $this->offset = $offset;
     }
 
     /**
@@ -98,7 +98,7 @@ final class Finder
      *
      * @return void
      */
-    public function resetOffset()
+    public function resetOffset(): void
     {
         $this->offset = 0;
     }
@@ -108,7 +108,7 @@ final class Finder
      *
      * @return \Cake\Datasource\QueryInterface
      */
-    private function buildQuery()
+    private function buildQuery(): \Cake\Datasource\QueryInterface
     {
         $query = $this->table->find('all');
 
@@ -132,10 +132,10 @@ final class Finder
     /**
      * Fetches duplicated records by IDs.
      *
-     * @param array $ids Duplicates IDs
+     * @param mixed[] $ids Duplicates IDs
      * @return \Cake\Datasource\ResultSetInterface
      */
-    private function fetchByIDs(array $ids)
+    private function fetchByIDs(array $ids): \Cake\Datasource\ResultSetInterface
     {
         $query = $this->table->find('all')
             ->where([$this->table->getPrimaryKey() . ' IN' => $ids]);
