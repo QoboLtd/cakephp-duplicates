@@ -43,11 +43,15 @@ class MapDuplicatesShell extends Shell
         try {
             $lock = new FileLock('import_' . md5(__FILE__));
         } catch (MutexException $e) {
-            $this->abort($e->getMessage());
+            $this->warn($e->getMessage());
+
+            return;
         }
 
         if (! $lock->lock()) {
-            $this->abort('Map duplicates is already in progress');
+            $this->warn('Map duplicates is already in progress');
+
+            return;
         }
 
         /**
