@@ -18,6 +18,7 @@ use Cake\Event\Event;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use InvalidArgumentException;
 use Qobo\Duplicates\Event\EventName;
 use Qobo\Duplicates\Filter\FilterCollection;
 use Qobo\Duplicates\Finder;
@@ -251,9 +252,14 @@ class DuplicatesTable extends Table
             $ids[] = $entity->get('duplicate_id');
         }
 
+        $primaryKey = $table->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
+
         $data = [
             'original' => $original,
-            'duplicates' => $table->find()->where([$table->getPrimaryKey() . ' IN' => $ids])->all(),
+            'duplicates' => $table->find()->where([$primaryKey . ' IN' => $ids])->all(),
             'fields' => $original->visibleProperties(),
             'virtualFields' => $original->getVirtual()
         ];
@@ -285,13 +291,20 @@ class DuplicatesTable extends Table
         );
 
         $table = TableRegistry::getTableLocator()->get($model);
+
+        $primaryKey = $table->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
+
         foreach ($ids as $id) {
             /**
              * @var \Cake\Datasource\EntityInterface $record
              */
             $record = $table->find()
-                ->where([$table->getPrimaryKey() => $id])
+                ->where([$primaryKey => $id])
                 ->first();
+
             if (null === $record) {
                 return false;
             }
@@ -302,6 +315,7 @@ class DuplicatesTable extends Table
             $entity = $this->find()
                 ->where(['OR' => ['duplicate_id' => $id, 'original_id' => $id]])
                 ->first();
+
             if (null === $entity) {
                 return false;
             }
@@ -358,8 +372,14 @@ class DuplicatesTable extends Table
         );
 
         $table = TableRegistry::getTableLocator()->get($model);
+
+        $primaryKey = $table->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
+
         $entity = $table->find()
-            ->where([$table->getPrimaryKey() => $id])
+            ->where([$primaryKey => $id])
             ->first();
 
         if (null === $entity) {

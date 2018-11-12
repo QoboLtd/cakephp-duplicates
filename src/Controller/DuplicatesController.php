@@ -13,6 +13,7 @@ namespace Qobo\Duplicates\Controller;
 
 use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
+use InvalidArgumentException;
 use Qobo\Duplicates\Manager;
 
 /**
@@ -87,6 +88,10 @@ class DuplicatesController extends AppController
 
         $table = TableRegistry::get($model);
 
+        $primaryKey = $table->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
 
         $manager = new Manager($table, $table->get($id));
 
@@ -136,6 +141,10 @@ class DuplicatesController extends AppController
 
         $table = TableRegistry::get($model);
 
+        $primaryKey = $table->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
 
         $manager = new Manager($table, $table->get($id), (array)$this->request->getData('data'));
 

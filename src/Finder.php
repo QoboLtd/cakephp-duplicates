@@ -2,6 +2,7 @@
 namespace Qobo\Duplicates;
 
 use Cake\Datasource\RepositoryInterface;
+use InvalidArgumentException;
 
 /**
  * This class is responsible for fetching duplicated records from the database.
@@ -110,10 +111,15 @@ final class Finder
      */
     private function buildQuery(): \Cake\Datasource\QueryInterface
     {
+        $primaryKey = $this->table->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
+
         $query = $this->table->find('all');
 
         $query->select([
-                $this->table->getPrimaryKey() => sprintf('GROUP_CONCAT(%s)', $this->table->getPrimaryKey()),
+                $primaryKey => sprintf('GROUP_CONCAT(%s)', $primaryKey),
                 'checksum' => $query->func()->concat($this->rule->buildFilters())
             ])
             ->group('checksum')
@@ -137,8 +143,13 @@ final class Finder
      */
     private function fetchByIDs(array $ids): \Cake\Datasource\ResultSetInterface
     {
+        $primaryKey = $this->table->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
+
         $query = $this->table->find('all')
-            ->where([$this->table->getPrimaryKey() . ' IN' => $ids]);
+            ->where([$primaryKey . ' IN' => $ids]);
 
         if ($this->table->getSchema()->hasColumn('created')) {
             $query->order([$this->table->aliasField('created') => 'ASC']);

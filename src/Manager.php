@@ -16,6 +16,7 @@ use Cake\Datasource\RepositoryInterface;
 use Cake\Datasource\ResultSetInterface;
 use Cake\ORM\Association;
 use Cake\ORM\TableRegistry;
+use InvalidArgumentException;
 
 /**
  * Duplicates Manager
@@ -165,11 +166,15 @@ final class Manager
     public function addDuplicate(EntityInterface $duplicate) : void
     {
         $entry = $this->fetchEntry($duplicate);
+        $primaryKey = $this->target->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
 
         if (null === $entry) {
             $this->errors[] = sprintf(
                 'Relevant entry not found, duplicate with ID "%s" will not be processed.',
-                $duplicate->get($this->target->getPrimaryKey())
+                $duplicate->get($primaryKey)
             );
 
             return;
@@ -185,13 +190,18 @@ final class Manager
      */
     public function process() : bool
     {
+        $primaryKey = $this->target->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
+
         $result = true;
         foreach ($this->duplicates as $duplicate) {
             if (! $this->_process($duplicate)) {
                 $this->errors[] = sprintf(
                     'Failed to process %s duplicate with ID %s',
                     $this->target->getAlias(),
-                    $duplicate->get($this->target->getPrimaryKey())
+                    $duplicate->get($primaryKey)
                 );
 
                 $result = false;
@@ -209,10 +219,15 @@ final class Manager
      */
     private function fetchEntry(EntityInterface $duplicate) : ?EntityInterface
     {
+        $primaryKey = $this->target->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
+
         return $this->table->find('all')
             ->where([
-                'duplicate_id' => $duplicate->get($this->target->getPrimaryKey()),
-                'original_id' => $this->original->get($this->target->getPrimaryKey())
+                'duplicate_id' => $duplicate->get($primaryKey),
+                'original_id' => $this->original->get($primaryKey)
             ])
             ->first();
     }
@@ -351,11 +366,16 @@ final class Manager
             return $duplicate->get($association->getProperty());
         }
 
+        $primaryKey = $association->getTarget()->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
+
         // inherit only association data not already associated with original, prevents duplication :)
         return $this->filterInheritData(
             $duplicate->get($association->getProperty()),
             $this->original->get($association->getProperty()),
-            $association->getTarget()->getPrimaryKey()
+            $primaryKey
         );
     }
 

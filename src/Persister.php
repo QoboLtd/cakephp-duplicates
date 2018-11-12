@@ -8,6 +8,7 @@ use Cake\Datasource\EntityInterface;
 use Cake\Datasource\RepositoryInterface;
 use Cake\Datasource\ResultSetInterface;
 use Cake\ORM\TableRegistry;
+use InvalidArgumentException;
 
 /**
  * This class is responsible for persisting duplicated records to the database.
@@ -65,6 +66,10 @@ final class Persister
     public function execute(): bool
     {
         $primaryKey = $this->table->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
+
         $data = [];
         foreach ($this->resultSet as $entity) {
             if ($this->isOriginal($entity)) {
@@ -144,6 +149,9 @@ final class Persister
     public function isOriginal(EntityInterface $entity): bool
     {
         $primaryKey = $this->table->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
 
         return $this->getOriginal()->get($primaryKey) === $entity->get($primaryKey);
     }
@@ -157,7 +165,11 @@ final class Persister
     public function isPersisted(EntityInterface $entity): bool
     {
         $table = TableRegistry::getTableLocator()->get('Qobo/Duplicates.Duplicates');
+
         $primaryKey = $this->table->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
 
         $query = $table->find()
             ->select('duplicate_id')
