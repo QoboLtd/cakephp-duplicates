@@ -13,7 +13,7 @@ namespace Qobo\Duplicates\Shell;
 
 use Cake\Console\Shell;
 use Cake\ORM\TableRegistry;
-use Exception;
+use NinjaMutex\MutexException;
 use Qobo\Utils\Utility\Lock\FileLock;
 
 /**
@@ -42,7 +42,7 @@ class MapDuplicatesShell extends Shell
     {
         try {
             $lock = new FileLock('import_' . md5(__FILE__));
-        } catch (Exception $e) {
+        } catch (MutexException $e) {
             $this->abort($e->getMessage());
         }
 
