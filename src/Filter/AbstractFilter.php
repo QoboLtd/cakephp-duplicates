@@ -36,7 +36,7 @@ abstract class AbstractFilter implements FilterInterface
      * @param string $property Property name
      * @return string
      */
-    final public function get($property): string
+    final public function get(string $property): string
     {
         return array_key_exists($property, $this->properties) ? $this->properties[$property] : '';
     }
