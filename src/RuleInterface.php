@@ -18,4 +18,11 @@ interface RuleInterface
      * @return \Qobo\Duplicates\Filter\FilterCollection
      */
     public function getFilters(): FilterCollection;
+
+    /**
+     * Builds query filters.
+     *
+     * @return mixed[]
+     */
+    public function buildFilters(): array;
 }
