@@ -1,6 +1,8 @@
 <?php
 namespace Qobo\Duplicates;
 
+use Qobo\Duplicates\Filter\FilterCollection;
+
 interface RuleInterface
 {
     /**
@@ -15,5 +17,5 @@ interface RuleInterface
      *
      * @return \Qobo\Duplicates\Filter\FilterCollection
      */
-    public function getFilters(): \Qobo\Duplicates\Filter\FilterCollection;
+    public function getFilters(): FilterCollection;
 }

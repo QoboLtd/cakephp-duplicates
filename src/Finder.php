@@ -1,7 +1,9 @@
 <?php
 namespace Qobo\Duplicates;
 
+use Cake\Datasource\QueryInterface;
 use Cake\Datasource\RepositoryInterface;
+use Cake\Datasource\ResultSetInterface;
 use InvalidArgumentException;
 
 /**
@@ -109,7 +111,7 @@ final class Finder
      *
      * @return \Cake\Datasource\QueryInterface
      */
-    private function buildQuery(): \Cake\Datasource\QueryInterface
+    private function buildQuery(): QueryInterface
     {
         $primaryKey = $this->table->getPrimaryKey();
         if (! is_string($primaryKey)) {
@@ -141,7 +143,7 @@ final class Finder
      * @param mixed[] $ids Duplicates IDs
      * @return \Cake\Datasource\ResultSetInterface
      */
-    private function fetchByIDs(array $ids): \Cake\Datasource\ResultSetInterface
+    private function fetchByIDs(array $ids): ResultSetInterface
     {
         $primaryKey = $this->table->getPrimaryKey();
         if (! is_string($primaryKey)) {

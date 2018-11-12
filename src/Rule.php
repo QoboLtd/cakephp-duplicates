@@ -57,7 +57,7 @@ final class Rule implements RuleInterface
      *
      * @return \Qobo\Duplicates\Filter\FilterCollection
      */
-    public function getFilters(): \Qobo\Duplicates\Filter\FilterCollection
+    public function getFilters(): FilterCollection
     {
         return $this->filters;
     }

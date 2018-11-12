@@ -133,7 +133,7 @@ final class Persister
      *
      * @return \Cake\Datasource\EntityInterface
      */
-    public function getOriginal(): \Cake\Datasource\EntityInterface
+    public function getOriginal(): EntityInterface
     {
         $resultSet = clone $this->resultSet;
 
