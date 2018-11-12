@@ -299,10 +299,11 @@ class DuplicatesTable extends Table
 
         foreach ($ids as $id) {
             /**
-             * @var \Cake\Datasource\EntityInterface $record
+             * @var \Cake\Datasource\EntityInterface|null
              */
             $record = $table->find()
                 ->where([$primaryKey => $id])
+                ->enableHydration()
                 ->first();
 
             if (null === $record) {
@@ -310,10 +311,11 @@ class DuplicatesTable extends Table
             }
 
             /**
-             * @var \Cake\Datasource\EntityInterface $entity
+             * @var \Cake\Datasource\EntityInterface|null
              */
             $entity = $this->find()
                 ->where(['OR' => ['duplicate_id' => $id, 'original_id' => $id]])
+                ->enableHydration()
                 ->first();
 
             if (null === $entity) {
@@ -378,8 +380,12 @@ class DuplicatesTable extends Table
             throw new InvalidArgumentException('Primary key must be a string');
         }
 
+        /**
+         * @var \Cake\Datasource\EntityInterface|null
+         */
         $entity = $table->find()
             ->where([$primaryKey => $id])
+            ->enableHydration()
             ->first();
 
         if (null === $entity) {
