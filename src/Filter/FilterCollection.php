@@ -29,7 +29,7 @@ final class FilterCollection implements IteratorAggregate
     /**
      * Constructor method.
      *
-     * @param mixed[] $filters List of filter instances
+     * @param \Qobo\Duplicates\Filter\FilterInterface ...$filters List of filter instances
      */
     public function __construct(FilterInterface ...$filters)
     {
