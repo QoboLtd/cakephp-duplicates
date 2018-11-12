@@ -33,7 +33,7 @@ final class Manager
     /**
      * Target table.
      *
-     * @var \Cake\Datasource\RepositoryInterface
+     * @var \Cake\ORM\Table
      */
     private $target;
 
@@ -81,7 +81,7 @@ final class Manager
     /**
      * Constructor method.
      *
-     * @param \Cake\Datasource\RepositoryInterface $table Target table instance
+     * @param \Cake\ORM\Table $table Target table instance
      * @param \Cake\Datasource\EntityInterface $original Original entity
      * @param mixed[] $data Request data
      * @return void
@@ -112,6 +112,10 @@ final class Manager
         }
 
         $junctions = [];
+
+        /**
+         * @var \Cake\ORM\Association\BelongsToMany $association
+         */
         foreach ($this->target->associations() as $association) {
             if (Association::MANY_TO_MANY === $association->type()) {
                 $this->associations[$association->getName()] = $association;

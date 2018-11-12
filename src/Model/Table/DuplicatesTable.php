@@ -137,7 +137,7 @@ class DuplicatesTable extends Table
     /**
      * Map Model duplicates.
      *
-     * @param \Cake\Datasource\RepositoryInterface $table Table instance
+     * @param \Cake\ORM\Table $table Table instance
      * @param mixed[] $config Duplicates configuration
      * @return void
      */
@@ -156,7 +156,7 @@ class DuplicatesTable extends Table
      * Map duplicates by rule.
      *
      * @param \Qobo\Duplicates\RuleInterface $rule Rule instance
-     * @param \Cake\Datasource\RepositoryInterface $table Table instance
+     * @param \Cake\ORM\Table $table Table instance
      * @return void
      */
     private function mapByRule(RuleInterface $rule, RepositoryInterface $table): void
@@ -174,7 +174,7 @@ class DuplicatesTable extends Table
      * Persists duplicated records to the databse.
      *
      * @param \Qobo\Duplicates\RuleInterface $rule Rule instance
-     * @param \Cake\Datasource\RepositoryInterface $table Table instance
+     * @param \Cake\ORM\Table $table Table instance
      * @param \Cake\Datasource\ResultSetInterface $resultSet Result set
      * @return void
      */

@@ -18,7 +18,7 @@ final class Persister
     /**
      * Target ORM table instance.
      *
-     * @var \Cake\Datasource\RepositoryInterface
+     * @var \Cake\ORM\Table
      */
     private $table;
 
@@ -46,7 +46,7 @@ final class Persister
     /**
      * Constructor method.
      *
-     * @param \Cake\Datasource\RepositoryInterface $table Target table instance
+     * @param \Cake\ORM\Table $table Target table instance
      * @param \Qobo\Duplicates\RuleInterface $rule Rule instance
      * @param \Cake\Datasource\ResultSetInterface $resultSet Result set
      * @return void

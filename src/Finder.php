@@ -14,7 +14,7 @@ final class Finder
     /**
      * Target ORM table instance.
      *
-     * @var \Cake\Datasource\RepositoryInterface
+     * @var \Cake\ORM\Table
      */
     private $table;
 
@@ -42,7 +42,7 @@ final class Finder
     /**
      * Constructor method.
      *
-     * @param \Cake\Datasource\RepositoryInterface $table Target table instance
+     * @param \Cake\ORM\Table $table Target table instance
      * @param \Qobo\Duplicates\RuleInterface $rule Rule instance
      * @param int $limit Query limit
      * @return void
