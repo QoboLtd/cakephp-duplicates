@@ -119,7 +119,6 @@ class DuplicatesTable extends Table
      */
     public function mapDuplicates(): array
     {
-        $modulesData = [];
         foreach (Utility::findDirs(Configure::readOrFail('Duplicates.path')) as $model) {
             $config = (new ModuleConfig(ConfigType::DUPLICATES(), $model))->parseToArray();
             if (empty($config)) {
