@@ -1,5 +1,5 @@
 <?php
-namespace Qobo\Duplicates\Filter;
+namespace Qobo\Duplicates\Test\TestCase;
 
 use Cake\Datasource\ResultSetInterface;
 use Cake\ORM\TableRegistry;
@@ -12,6 +12,11 @@ use Qobo\Duplicates\Rule;
 class FinderTest extends TestCase
 {
     public $fixtures = ['plugin.Qobo/Duplicates.articles'];
+
+    /**
+     * @var array $filters
+     */
+    protected $filters;
 
     /**
      * {@inheritDoc}
@@ -36,7 +41,7 @@ class FinderTest extends TestCase
         parent::tearDown();
     }
 
-    public function testOffset()
+    public function testOffset(): void
     {
         $finder = new Finder(
             TableRegistry::getTableLocator()->get('Qobo/Duplicates.Articles'),
@@ -52,7 +57,7 @@ class FinderTest extends TestCase
         $this->assertSame(0, $finder->getOffset());
     }
 
-    public function testExecute()
+    public function testExecute(): void
     {
         $finder = new Finder(
             TableRegistry::getTableLocator()->get('Qobo/Duplicates.Articles'),
@@ -78,7 +83,7 @@ class FinderTest extends TestCase
         }
     }
 
-    public function testExecuteWithLimit()
+    public function testExecuteWithLimit(): void
     {
         $finder = new Finder(
             TableRegistry::getTableLocator()->get('Qobo/Duplicates.Articles'),

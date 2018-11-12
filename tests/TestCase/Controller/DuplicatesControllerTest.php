@@ -9,6 +9,8 @@ use Cake\TestSuite\IntegrationTestCase;
  */
 class DuplicatesControllerTest extends IntegrationTestCase
 {
+    private $table;
+
     public $fixtures = [
         'plugin.CakeDC/Users.users',
         'plugin.Qobo/Duplicates.articles',
@@ -41,14 +43,14 @@ class DuplicatesControllerTest extends IntegrationTestCase
         parent::tearDown();
     }
 
-    public function testIndexUnauthenticated()
+    public function testIndexUnauthenticated(): void
     {
         $this->get('/duplicates/duplicates/items/Articles/byTitle');
 
         $this->assertResponseCode(403);
     }
 
-    public function testIndex()
+    public function testIndex(): void
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 
@@ -64,7 +66,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         $this->assertNotEmpty($response->data);
     }
 
-    public function testView()
+    public function testView(): void
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 
@@ -82,7 +84,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         $this->assertInternalType('array', $response->data->virtualFields);
     }
 
-    public function testViewWithInvalidID()
+    public function testViewWithInvalidID(): void
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 
@@ -98,7 +100,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         );
     }
 
-    public function testDelete()
+    public function testDelete(): void
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 
@@ -112,7 +114,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         $this->_sendRequest(
             '/duplicates/duplicates/delete/Articles/00000000-0000-0000-0000-000000000002',
             'DELETE',
-            json_encode($data)
+            $data
         );
         $this->assertResponseCode(200);
         $this->assertJson($this->_getBodyAsString());
@@ -122,34 +124,37 @@ class DuplicatesControllerTest extends IntegrationTestCase
         $this->assertSame([], $response->data);
     }
 
-    public function testDeleteWithInvalidID()
+    public function testDeleteWithInvalidID(): void
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 
+        // get duplcicates count
+        $count = $this->table->find('all')->count();
+        // invalid ID
+        $id = '00000000-0000-0000-0000-000000000404';
         $data = [
             'ids' => ['00000000-0000-0000-0000-000000000003']
         ];
 
         $this->_sendRequest(
-            '/duplicates/duplicates/delete/Articles/00000000-0000-0000-0000-000000000404',
+            '/duplicates/duplicates/delete/Articles/' . $id,
             'DELETE',
-            json_encode($data)
+            $data
         );
-        $this->assertResponseCode(200);
-        $this->assertJson($this->_getBodyAsString());
 
-        $response = json_decode($this->_getBodyAsString());
-        $this->assertFalse($response->success);
-        $this->assertSame('Failed to delete duplicates: Record not found in table "articles"', $response->error);
+        $this->assertResponseCode(404);
+        $this->assertJson($this->_getBodyAsString());
+        // duplicate records were not affected
+        $this->assertSame($count, $this->table->find('all')->count());
     }
 
-    public function testFalsePositive()
+    public function testFalsePositive(): void
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 
         $data = ['ids' => ['00000000-0000-0000-0000-000000000003']];
 
-        $this->post('/duplicates/duplicates/false-positive/byTitle', json_encode($data));
+        $this->post('/duplicates/duplicates/false-positive/byTitle', $data);
         $this->assertResponseCode(200);
         $this->assertJson($this->_getBodyAsString());
 
@@ -158,7 +163,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         $this->assertSame([], $response->data);
     }
 
-    public function testMerge()
+    public function testMerge(): void
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 
@@ -178,7 +183,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         ];
         $invalidDuplicate = $table->get($data['ids'][1], ['contain' => $associations]);
 
-        $this->post('/duplicates/duplicates/merge/Articles/00000000-0000-0000-0000-000000000002', json_encode($data));
+        $this->post('/duplicates/duplicates/merge/Articles/00000000-0000-0000-0000-000000000002', $data);
         $this->assertResponseCode(200);
         $this->assertJson($this->_getBodyAsString());
 
@@ -191,7 +196,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         $this->assertSame([], $response->data);
     }
 
-    public function testMergeWithInvalidID()
+    public function testMergeWithInvalidID(): void
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 
@@ -204,14 +209,11 @@ class DuplicatesControllerTest extends IntegrationTestCase
             'ids' => ['00000000-0000-0000-0000-000000000003']
         ];
 
-        $this->post('/duplicates/duplicates/merge/Articles/' . $id, json_encode($data));
-        $this->assertResponseCode(200);
+        $this->post('/duplicates/duplicates/merge/Articles/' . $id, $data);
+
+        $this->assertResponseCode(404);
         $this->assertJson($this->_getBodyAsString());
         // duplicate records were not affected
         $this->assertSame($count, $this->table->find('all')->count());
-
-        $response = json_decode($this->_getBodyAsString());
-        $this->assertFalse($response->success);
-        $this->assertSame('Failed to merge duplicates: Record not found in table "articles"', $response->error);
     }
 }

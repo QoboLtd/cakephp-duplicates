@@ -21,9 +21,9 @@ final class Rule implements RuleInterface
     /**
      * Filters list.
      *
-     * @var array
+     * @var \Qobo\Duplicates\Filter\FilterCollection
      */
-    private $filters = [];
+    private $filters;
 
     /**
      * Constructor method.
@@ -32,14 +32,10 @@ final class Rule implements RuleInterface
      * @param \Qobo\Duplicates\Filter\FilterCollection $filters Filters collection
      * @return void
      */
-    public function __construct($name, FilterCollection $filters)
+    public function __construct(string $name, FilterCollection $filters)
     {
-        if (! is_string($name)) {
-            throw new InvalidArgumentException('Rule name must be a string');
-        }
-
-        if ('' === trim($name)) {
-            throw new InvalidArgumentException('Rule name is required');
+        if (empty(trim($name))) {
+            throw new InvalidArgumentException('Rule name must be a non-empty string');
         }
 
         $this->name = $name;
@@ -47,17 +43,21 @@ final class Rule implements RuleInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Rule name getter.
+     *
+     * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
     /**
-     * {@inheritDoc}
+     * Rule filters getter.
+     *
+     * @return \Qobo\Duplicates\Filter\FilterCollection
      */
-    public function getFilters()
+    public function getFilters(): FilterCollection
     {
         return $this->filters;
     }
@@ -65,9 +65,9 @@ final class Rule implements RuleInterface
     /**
      * Builds query filters.
      *
-     * @return array
+     * @return mixed[]
      */
-    public function buildFilters()
+    public function buildFilters(): array
     {
         $result = [];
         foreach ($this->getFilters() as $filter) {

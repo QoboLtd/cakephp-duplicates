@@ -35,7 +35,7 @@ class MapDuplicatesShellTest extends ConsoleIntegrationTestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->io = $this->getMockBuilder('Cake\Console\ConsoleIo')->getMock();
@@ -59,7 +59,7 @@ class MapDuplicatesShellTest extends ConsoleIntegrationTestCase
      *
      * @return void
      */
-    public function testGetOptionParser()
+    public function testGetOptionParser(): void
     {
         $this->assertInstanceOf(ConsoleOptionParser::class, $this->MapDuplicatesShell->getOptionParser());
         $this->assertSame('Map Duplicate records', $this->MapDuplicatesShell->getOptionParser()->getDescription());
@@ -70,11 +70,10 @@ class MapDuplicatesShellTest extends ConsoleIntegrationTestCase
      *
      * @return void
      */
-    public function testMain()
+    public function testMain(): void
     {
         $table = TableRegistry::getTableLocator()->get('Qobo/Duplicates.Duplicates');
-
-        $this->assertSame(null, $this->MapDuplicatesShell->main());
+        $this->MapDuplicatesShell->main();
         $this->assertCount(4, $table->find()->all());
     }
 }

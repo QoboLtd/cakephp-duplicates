@@ -9,8 +9,8 @@ class CommentsTable extends Table
     {
         parent::initialize($config);
 
-        $this->table('comments');
-        $this->primaryKey('id');
+        $this->setTable('comments');
+        $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
 

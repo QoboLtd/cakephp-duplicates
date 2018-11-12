@@ -1,13 +1,20 @@
 <?php
-namespace Qobo\Duplicates\Filter;
+namespace Qobo\Duplicates\Test\TestCase\Filter;
 
 use Cake\TestSuite\TestCase;
+use Qobo\Duplicates\Filter\EndsWithFilter;
 use Qobo\Duplicates\Filter\ExactFilter;
 use Qobo\Duplicates\Filter\FilterCollection;
 use Qobo\Duplicates\Filter\FilterInterface;
+use Qobo\Duplicates\Filter\StartsWithFilter;
 
 class FilterCollectionTest extends TestCase
 {
+    /**
+     * @var \IteratorAggregate
+     */
+    private $instance;
+
     /**
      * {@inheritDoc}
      */
@@ -33,7 +40,7 @@ class FilterCollectionTest extends TestCase
         parent::tearDown();
     }
 
-    public function testFilterInstance()
+    public function testFilterInstance() : void
     {
         foreach ($this->instance as $filter) {
             $this->assertInstanceOf(FilterInterface::class, $filter);

@@ -16,7 +16,7 @@ use Cake\Datasource\RepositoryInterface;
 use Cake\Datasource\ResultSetInterface;
 use Cake\ORM\Association;
 use Cake\ORM\TableRegistry;
-use Exception;
+use InvalidArgumentException;
 
 /**
  * Duplicates Manager
@@ -33,7 +33,7 @@ final class Manager
     /**
      * Target table.
      *
-     * @var \Cake\Datasource\RepositoryInterface
+     * @var \Cake\ORM\Table
      */
     private $target;
 
@@ -47,14 +47,14 @@ final class Manager
     /**
      * Duplicates list.
      *
-     * @var \Cake\Datasource\EntityInterface[]
+     * @var array
      */
     private $duplicates = [];
 
     /**
      * Duplicates merging data.
      *
-     * @var []
+     * @var array $data
      */
     private $data = [];
 
@@ -81,9 +81,9 @@ final class Manager
     /**
      * Constructor method.
      *
-     * @param \Cake\Datasource\RepositoryInterface $table Target table instance
+     * @param \Cake\ORM\Table $table Target table instance
      * @param \Cake\Datasource\EntityInterface $original Original entity
-     * @param array $data Request data
+     * @param mixed[] $data Request data
      * @return void
      */
     public function __construct(RepositoryInterface $table, EntityInterface $original, array $data = [])
@@ -112,6 +112,10 @@ final class Manager
         }
 
         $junctions = [];
+
+        /**
+         * @var \Cake\ORM\Association\BelongsToMany $association
+         */
         foreach ($this->target->associations() as $association) {
             if (Association::MANY_TO_MANY === $association->type()) {
                 $this->associations[$association->getName()] = $association;
@@ -166,11 +170,15 @@ final class Manager
     public function addDuplicate(EntityInterface $duplicate) : void
     {
         $entry = $this->fetchEntry($duplicate);
+        $primaryKey = $this->target->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
 
         if (null === $entry) {
             $this->errors[] = sprintf(
                 'Relevant entry not found, duplicate with ID "%s" will not be processed.',
-                $duplicate->get($this->target->getPrimaryKey())
+                $duplicate->get($primaryKey)
             );
 
             return;
@@ -186,13 +194,18 @@ final class Manager
      */
     public function process() : bool
     {
+        $primaryKey = $this->target->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
+
         $result = true;
         foreach ($this->duplicates as $duplicate) {
             if (! $this->_process($duplicate)) {
                 $this->errors[] = sprintf(
                     'Failed to process %s duplicate with ID %s',
                     $this->target->getAlias(),
-                    $duplicate->get($this->target->getPrimaryKey())
+                    $duplicate->get($primaryKey)
                 );
 
                 $result = false;
@@ -210,10 +223,15 @@ final class Manager
      */
     private function fetchEntry(EntityInterface $duplicate) : ?EntityInterface
     {
+        $primaryKey = $this->target->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
+
         return $this->table->find('all')
             ->where([
-                'duplicate_id' => $duplicate->get($this->target->getPrimaryKey()),
-                'original_id' => $this->original->get($this->target->getPrimaryKey())
+                'duplicate_id' => $duplicate->get($primaryKey),
+                'original_id' => $this->original->get($primaryKey)
             ])
             ->first();
     }
@@ -233,19 +251,15 @@ final class Manager
     private function _process(EntityInterface $duplicate) : bool
     {
         return $this->target->getConnection()->transactional(function () use ($duplicate) {
-            try {
-                if (! $this->merge()) {
-                    return false;
-                }
+            if (! $this->merge()) {
+                return false;
+            }
 
-                if (! $this->inherit($duplicate)) {
-                    return false;
-                }
+            if (! $this->inherit($duplicate)) {
+                return false;
+            }
 
-                if (! $this->delete($duplicate)) {
-                    return false;
-                }
-            } catch (Exception $e) {
+            if (! $this->delete($duplicate)) {
                 return false;
             }
 
@@ -286,7 +300,12 @@ final class Manager
      */
     private function delete(EntityInterface $duplicate) : bool
     {
-        if (! $this->table->delete($this->fetchEntry($duplicate), ['atomic' => false])) {
+        $entry = $this->fetchEntry($duplicate);
+        if (null === $entry) {
+            return false;
+        }
+
+        if (! $this->table->delete($entry, ['atomic' => false])) {
             return false;
         }
 
@@ -318,7 +337,7 @@ final class Manager
      * Retrieves duplicate entity associated data that will be inherited by the original entity.
      *
      * @param \Cake\Datasource\EntityInterface $duplicate Duplicate entity
-     * @return array
+     * @return mixed[]
      */
     private function getInheritData(EntityInterface $duplicate) : array
     {
@@ -356,11 +375,16 @@ final class Manager
             return $duplicate->get($association->getProperty());
         }
 
+        $primaryKey = $association->getTarget()->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
+
         // inherit only association data not already associated with original, prevents duplication :)
         return $this->filterInheritData(
             $duplicate->get($association->getProperty()),
             $this->original->get($association->getProperty()),
-            $association->getTarget()->getPrimaryKey()
+            $primaryKey
         );
     }
 

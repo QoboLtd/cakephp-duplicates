@@ -10,6 +10,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Cake\Validation\Validator;
+use PDOException;
 use Qobo\Duplicates\Manager;
 
 /**
@@ -28,6 +29,16 @@ class ManagerTest extends TestCase
     ];
 
     /**
+     * @var \Qobo\Duplicates\Model\Table\DuplicatesTable $Duplicates
+     */
+    protected $Duplicates;
+
+    /**
+     * @var \Qobo\Duplicates\Test\App\Model\Table\ArticlesTable $table
+     */
+    protected $table;
+
+    /**
      * setUp method
      *
      * @return void
@@ -36,8 +47,17 @@ class ManagerTest extends TestCase
     {
         parent::setUp();
 
-        $this->Duplicates = TableRegistry::get('Qobo/Duplicates.Duplicates');
-        $this->table = TableRegistry::get('Articles');
+        /**
+         * @var \Qobo\Duplicates\Model\Table\DuplicatesTable $table
+         */
+        $table = TableRegistry::get('Qobo/Duplicates.Duplicates');
+        $this->Duplicates = $table;
+
+        /**
+         * @var \Qobo\Duplicates\Test\App\Model\Table\ArticlesTable $table
+         */
+        $table = TableRegistry::get('Articles');
+        $this->table = $table;
     }
 
     /**
@@ -53,7 +73,7 @@ class ManagerTest extends TestCase
         parent::tearDown();
     }
 
-    public function testAddDuplicate()
+    public function testAddDuplicate(): void
     {
         $id = '00000000-0000-0000-0000-000000000003';
 
@@ -63,7 +83,7 @@ class ManagerTest extends TestCase
         $this->assertTrue($manager->process());
     }
 
-    public function testAddDuplicateWithInvalidEntry()
+    public function testAddDuplicateWithInvalidEntry(): void
     {
         // invalid duplicate id, no such entry
         $id = '00000000-0000-0000-0000-000000000002';
@@ -74,7 +94,7 @@ class ManagerTest extends TestCase
         $this->assertTrue($manager->process());
     }
 
-    public function testAddDuplicates()
+    public function testAddDuplicates(): void
     {
         $id = '00000000-0000-0000-0000-000000000003';
 
@@ -85,7 +105,7 @@ class ManagerTest extends TestCase
         $this->assertTrue($manager->process());
     }
 
-    public function testAddDuplicatesWithInvalidEntry()
+    public function testAddDuplicatesWithInvalidEntry(): void
     {
         // invalid duplicate id, no such entry
         $id = '00000000-0000-0000-0000-000000000002';
@@ -97,7 +117,7 @@ class ManagerTest extends TestCase
         $this->assertTrue($manager->process());
     }
 
-    public function testGetErrrors()
+    public function testGetErrrors(): void
     {
         $id = '00000000-0000-0000-0000-000000000003';
 
@@ -108,7 +128,7 @@ class ManagerTest extends TestCase
         $this->assertEmpty($manager->getErrors());
     }
 
-    public function testGetErrorsWithInvalidEntry()
+    public function testGetErrorsWithInvalidEntry(): void
     {
         // invalid duplicate id, no such entry
         $id = '00000000-0000-0000-0000-000000000002';
@@ -125,12 +145,14 @@ class ManagerTest extends TestCase
 
     /**
      * @dataProvider invalidateProvider
+     * @param mixed[] $data
+     * @param string $callback
      */
-    public function testGetErrorsWithInvalidData(array $data, string $callback = '')
+    public function testGetErrorsWithInvalidData(array $data, string $callback = ''): void
     {
         // trigger callback
         if ('' !== trim($callback)) {
-            call_user_func([$this, $callback]);
+            $this->{$callback}();
         }
 
         $id = '00000000-0000-0000-0000-000000000003';
@@ -145,7 +167,7 @@ class ManagerTest extends TestCase
         );
     }
 
-    public function testProcessSuccessful()
+    public function testProcessSuccessful(): void
     {
         $associations = $this->table->associations()->keys();
 
@@ -210,12 +232,14 @@ class ManagerTest extends TestCase
     /**
      *
      * @dataProvider invalidateProvider
+     * @param mixed[] $data
+     * @param string $callback
      */
-    public function testProcessFailure(array $data, string $callback = '')
+    public function testProcessFailure(array $data, string $callback = ''): void
     {
         // trigger callback
         if ('' !== trim($callback)) {
-            call_user_func([$this, $callback]);
+            $this->{$callback}();
         }
 
         $resultSet = $this->Duplicates->find('all')->all();
@@ -241,17 +265,53 @@ class ManagerTest extends TestCase
         $this->assertEquals($expected['duplicate'], $this->table->get($ids['duplicate'], ['contain' => $associations]), 'Duplicate entity was modifed');
     }
 
-    public function invalidateProvider()
+    public function testProcessFailureWithException(): void
+    {
+        $this->expectException(PDOException::class);
+
+        // prevent associated record link to fail the transactional operation
+        EventManager::instance()->on('Model.beforeSave', function ($event) {
+            if ('Comments' === $event->getSubject()->getAlias()) {
+                throw new PDOException();
+            }
+        });
+
+        $resultSet = $this->Duplicates->find('all')->all();
+        $associations = $this->table->associations()->keys();
+
+        $ids = [
+            'original' => '00000000-0000-0000-0000-000000000002',
+            'duplicate' => '00000000-0000-0000-0000-000000000003'
+        ];
+        $expected = [
+            'original' => $this->table->get($ids['original'], ['contain' => $associations]),
+            'duplicate' => $this->table->get($ids['duplicate'], ['contain' => $associations])
+        ];
+
+        $manager = new Manager($this->table, $this->table->get($ids['original']), []);
+        $manager->addDuplicate($this->table->get($ids['duplicate']));
+
+        $this->assertFalse($manager->process(), 'Duplicates processing completed successfully');
+
+        $this->assertEquals($resultSet, $this->Duplicates->find('all')->all(), 'Duplicate table entries were affected');
+
+        $this->assertEquals($expected['original'], $this->table->get($ids['original'], ['contain' => $associations]), 'Original entity was modifed');
+        $this->assertEquals($expected['duplicate'], $this->table->get($ids['duplicate'], ['contain' => $associations]), 'Duplicate entity was modifed');
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function invalidateProvider(): array
     {
         return [
             [['title' => null]],
             [[], 'preventEntryDeletion'],
-            [[], 'preventDuplicateDeletion'],
-            [[], 'preventAssociatedLink']
+            [[], 'preventDuplicateDeletion']
         ];
     }
 
-    private function preventEntryDeletion()
+    private function preventEntryDeletion(): void
     {
         // prevent entry record deletion to fail the transactional operation
         EventManager::instance()->on('Model.beforeDelete', function ($event) {
@@ -263,7 +323,7 @@ class ManagerTest extends TestCase
         });
     }
 
-    private function preventDuplicateDeletion()
+    private function preventDuplicateDeletion(): void
     {
         // prevent duplicate entity deletion to fail the transactional operation
         EventManager::instance()->on('Model.beforeDelete', function ($event) {
@@ -271,16 +331,6 @@ class ManagerTest extends TestCase
                 $event->stopPropagation();
 
                 return false;
-            }
-        });
-    }
-
-    private function preventAssociatedLink()
-    {
-        // prevent associated record link to fail the transactional operation
-        EventManager::instance()->on('Model.beforeSave', function ($event) {
-            if ('Comments' === $event->getSubject()->getAlias()) {
-                throw new \PDOException();
             }
         });
     }

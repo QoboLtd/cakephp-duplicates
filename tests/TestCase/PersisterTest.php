@@ -1,5 +1,5 @@
 <?php
-namespace Qobo\Duplicates\Filter;
+namespace Qobo\Duplicates\Test\TestCase;
 
 use Cake\Datasource\ResultSetInterface;
 use Cake\ORM\TableRegistry;
@@ -12,6 +12,26 @@ use Qobo\Duplicates\Rule;
 
 class PersisterTest extends TestCase
 {
+    /**
+     * @var \Qobo\Duplicates\RuleInterface
+     */
+    private $rule;
+
+    /**
+     * @var \Cake\ORM\Table
+     */
+    private $table;
+
+    /**
+     * @var \Qobo\Duplicates\Finder
+     */
+    private $finder;
+
+    /**
+     * @var \Cake\Datasource\ResultSetInterface
+     */
+    private $resultSet;
+
     public $fixtures = [
         'plugin.Qobo/Duplicates.articles',
         'plugin.Qobo/Duplicates.duplicates'
@@ -47,14 +67,14 @@ class PersisterTest extends TestCase
         parent::tearDown();
     }
 
-    public function testGetOriginal()
+    public function testGetOriginal(): void
     {
         $persister = new Persister($this->table, $this->rule, $this->resultSet);
 
         $this->assertSame($this->resultSet->first(), $persister->getOriginal());
     }
 
-    public function testIsOriginal()
+    public function testIsOriginal(): void
     {
         $persister = new Persister($this->table, $this->rule, $this->resultSet);
 
@@ -62,7 +82,7 @@ class PersisterTest extends TestCase
         $this->assertFalse($persister->isOriginal($this->resultSet->skip(1)->first()));
     }
 
-    public function testGetErrors()
+    public function testGetErrors(): void
     {
         $persister = new Persister($this->table, $this->rule, $this->resultSet);
 
@@ -72,14 +92,14 @@ class PersisterTest extends TestCase
         $this->assertEmpty($persister->getErrors());
     }
 
-    public function testIsPersisted()
+    public function testIsPersisted(): void
     {
         $persister = new Persister($this->table, $this->rule, $this->resultSet);
 
         $this->assertFalse($persister->isPersisted($this->table->get('00000000-0000-0000-0000-000000000001')));
     }
 
-    public function testExecute()
+    public function testExecute(): void
     {
         $persister = new Persister($this->table, $this->rule, $this->resultSet);
 
@@ -91,12 +111,15 @@ class PersisterTest extends TestCase
 
         $this->assertFalse($query->isEmpty());
 
-        $entity = $query->first();
+        /**
+         * @var \Cake\Datasource\EntityInterface
+         */
+        $entity = $query->firstOrFail();
         $this->assertSame('00000000-0000-0000-0000-000000000002', $entity->get('original_id'));
         $this->assertSame('00000000-0000-0000-0000-000000000003', $entity->get('duplicate_id'));
     }
 
-    public function testExecuteWithAlreadyPersisted()
+    public function testExecuteWithAlreadyPersisted(): void
     {
         $persister = new Persister(
             $this->table,
@@ -114,7 +137,10 @@ class PersisterTest extends TestCase
 
         $this->assertFalse($query->isEmpty());
 
-        $entity = $query->first();
+        /**
+         * @var \Cake\Datasource\EntityInterface
+         */
+        $entity = $query->firstOrFail();
         $this->assertSame('00000000-0000-0000-0000-000000000002', $entity->get('original_id'));
         $this->assertSame('00000000-0000-0000-0000-000000000003', $entity->get('duplicate_id'));
     }

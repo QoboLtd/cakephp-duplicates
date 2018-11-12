@@ -13,6 +13,7 @@ namespace Qobo\Duplicates\Shell;
 
 use Cake\Console\Shell;
 use Cake\ORM\TableRegistry;
+use NinjaMutex\MutexException;
 use Qobo\Utils\Utility\Lock\FileLock;
 
 /**
@@ -41,14 +42,21 @@ class MapDuplicatesShell extends Shell
     {
         try {
             $lock = new FileLock('import_' . md5(__FILE__));
-        } catch (Exception $e) {
-            $this->abort($e->getMessage());
+        } catch (MutexException $e) {
+            $this->warn($e->getMessage());
+
+            return;
         }
 
         if (! $lock->lock()) {
-            $this->abort('Map duplicates is already in progress');
+            $this->warn('Map duplicates is already in progress');
+
+            return;
         }
 
+        /**
+         * @var \Qobo\Duplicates\Model\Table\DuplicatesTable $table
+         */
         $table = TableRegistry::getTableLocator()->get('Qobo/Duplicates.Duplicates');
         $result = $table->mapDuplicates();
 

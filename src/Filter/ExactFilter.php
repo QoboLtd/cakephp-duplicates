@@ -14,9 +14,11 @@ namespace Qobo\Duplicates\Filter;
 final class ExactFilter extends AbstractFilter
 {
     /**
-     * {@inheritDoc}
+     * Filter value getter.
+     *
+     * @return string
      */
-    public function getValue()
+    public function getValue(): string
     {
         return $this->get('field');
     }

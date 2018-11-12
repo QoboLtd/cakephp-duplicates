@@ -1,11 +1,16 @@
 <?php
-namespace Qobo\Duplicates\Filter;
+namespace Qobo\Duplicates\Test\TestCase\Filter;
 
 use Cake\TestSuite\TestCase;
 use Qobo\Duplicates\Filter\ExactFilter;
 
 class ExactFilterTest extends TestCase
 {
+    /**
+     * @var \Qobo\Duplicates\Filter\FilterInterface
+     */
+    private $instance;
+
     /**
      * {@inheritDoc}
      */
@@ -26,7 +31,7 @@ class ExactFilterTest extends TestCase
         parent::tearDown();
     }
 
-    public function testGetValue()
+    public function testGetValue() : void
     {
         $this->assertSame('foo', $this->instance->getValue());
     }
