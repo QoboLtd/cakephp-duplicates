@@ -265,6 +265,40 @@ class ManagerTest extends TestCase
         $this->assertEquals($expected['duplicate'], $this->table->get($ids['duplicate'], ['contain' => $associations]), 'Duplicate entity was modifed');
     }
 
+    public function testProcessFailureWithException(): void
+    {
+        $this->expectException(PDOException::class);
+
+        // prevent associated record link to fail the transactional operation
+        EventManager::instance()->on('Model.beforeSave', function ($event) {
+            if ('Comments' === $event->getSubject()->getAlias()) {
+                throw new PDOException();
+            }
+        });
+
+        $resultSet = $this->Duplicates->find('all')->all();
+        $associations = $this->table->associations()->keys();
+
+        $ids = [
+            'original' => '00000000-0000-0000-0000-000000000002',
+            'duplicate' => '00000000-0000-0000-0000-000000000003'
+        ];
+        $expected = [
+            'original' => $this->table->get($ids['original'], ['contain' => $associations]),
+            'duplicate' => $this->table->get($ids['duplicate'], ['contain' => $associations])
+        ];
+
+        $manager = new Manager($this->table, $this->table->get($ids['original']), []);
+        $manager->addDuplicate($this->table->get($ids['duplicate']));
+
+        $this->assertFalse($manager->process(), 'Duplicates processing completed successfully');
+
+        $this->assertEquals($resultSet, $this->Duplicates->find('all')->all(), 'Duplicate table entries were affected');
+
+        $this->assertEquals($expected['original'], $this->table->get($ids['original'], ['contain' => $associations]), 'Original entity was modifed');
+        $this->assertEquals($expected['duplicate'], $this->table->get($ids['duplicate'], ['contain' => $associations]), 'Duplicate entity was modifed');
+    }
+
     /**
      * @return mixed[]
      */
@@ -273,8 +307,7 @@ class ManagerTest extends TestCase
         return [
             [['title' => null]],
             [[], 'preventEntryDeletion'],
-            [[], 'preventDuplicateDeletion'],
-            [[], 'preventAssociatedLink']
+            [[], 'preventDuplicateDeletion']
         ];
     }
 
@@ -298,16 +331,6 @@ class ManagerTest extends TestCase
                 $event->stopPropagation();
 
                 return false;
-            }
-        });
-    }
-
-    private function preventAssociatedLink(): void
-    {
-        // prevent associated record link to fail the transactional operation
-        EventManager::instance()->on('Model.beforeSave', function ($event) {
-            if ('Comments' === $event->getSubject()->getAlias()) {
-                throw new PDOException();
             }
         });
     }

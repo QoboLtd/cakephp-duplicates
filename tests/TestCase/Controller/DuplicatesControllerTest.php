@@ -128,21 +128,24 @@ class DuplicatesControllerTest extends IntegrationTestCase
     {
         $this->session(['Auth.User.id' => '00000000-0000-0000-0000-000000000004']);
 
+        // get duplcicates count
+        $count = $this->table->find('all')->count();
+        // invalid ID
+        $id = '00000000-0000-0000-0000-000000000404';
         $data = [
             'ids' => ['00000000-0000-0000-0000-000000000003']
         ];
 
         $this->_sendRequest(
-            '/duplicates/duplicates/delete/Articles/00000000-0000-0000-0000-000000000404',
+            '/duplicates/duplicates/delete/Articles/' . $id,
             'DELETE',
             $data
         );
-        $this->assertResponseCode(200);
-        $this->assertJson($this->_getBodyAsString());
 
-        $response = json_decode($this->_getBodyAsString());
-        $this->assertFalse($response->success);
-        $this->assertSame('Failed to delete duplicates: Record not found in table "articles"', $response->error);
+        $this->assertResponseCode(404);
+        $this->assertJson($this->_getBodyAsString());
+        // duplicate records were not affected
+        $this->assertSame($count, $this->table->find('all')->count());
     }
 
     public function testFalsePositive(): void
@@ -207,13 +210,10 @@ class DuplicatesControllerTest extends IntegrationTestCase
         ];
 
         $this->post('/duplicates/duplicates/merge/Articles/' . $id, $data);
-        $this->assertResponseCode(200);
+
+        $this->assertResponseCode(404);
         $this->assertJson($this->_getBodyAsString());
         // duplicate records were not affected
         $this->assertSame($count, $this->table->find('all')->count());
-
-        $response = json_decode($this->_getBodyAsString());
-        $this->assertFalse($response->success);
-        $this->assertSame('Failed to merge duplicates: Record not found in table "articles"', $response->error);
     }
 }
