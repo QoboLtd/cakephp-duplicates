@@ -7,6 +7,11 @@ use Qobo\Duplicates\Filter\EndsWithFilter;
 class EndsWithFilterTest extends TestCase
 {
     /**
+     * @var \Qobo\Duplicates\Filter\FilterInterface
+     */
+    private $instance;
+
+    /**
      * {@inheritDoc}
      */
     public function setUp()
@@ -26,7 +31,7 @@ class EndsWithFilterTest extends TestCase
         parent::tearDown();
     }
 
-    public function testGetValue()
+    public function testGetValue() : void
     {
         $this->assertSame('SUBSTR(foo, -10, 10)', $this->instance->getValue());
     }

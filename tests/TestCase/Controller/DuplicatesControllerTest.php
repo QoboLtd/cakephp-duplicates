@@ -9,6 +9,8 @@ use Cake\TestSuite\IntegrationTestCase;
  */
 class DuplicatesControllerTest extends IntegrationTestCase
 {
+    private $table;
+
     public $fixtures = [
         'plugin.CakeDC/Users.users',
         'plugin.Qobo/Duplicates.articles',
@@ -112,7 +114,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         $this->_sendRequest(
             '/duplicates/duplicates/delete/Articles/00000000-0000-0000-0000-000000000002',
             'DELETE',
-            json_encode($data)
+            $data
         );
         $this->assertResponseCode(200);
         $this->assertJson($this->_getBodyAsString());
@@ -133,7 +135,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         $this->_sendRequest(
             '/duplicates/duplicates/delete/Articles/00000000-0000-0000-0000-000000000404',
             'DELETE',
-            json_encode($data)
+            $data
         );
         $this->assertResponseCode(200);
         $this->assertJson($this->_getBodyAsString());
@@ -149,7 +151,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
 
         $data = ['ids' => ['00000000-0000-0000-0000-000000000003']];
 
-        $this->post('/duplicates/duplicates/false-positive/byTitle', json_encode($data));
+        $this->post('/duplicates/duplicates/false-positive/byTitle', $data);
         $this->assertResponseCode(200);
         $this->assertJson($this->_getBodyAsString());
 
@@ -178,7 +180,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         ];
         $invalidDuplicate = $table->get($data['ids'][1], ['contain' => $associations]);
 
-        $this->post('/duplicates/duplicates/merge/Articles/00000000-0000-0000-0000-000000000002', json_encode($data));
+        $this->post('/duplicates/duplicates/merge/Articles/00000000-0000-0000-0000-000000000002', $data);
         $this->assertResponseCode(200);
         $this->assertJson($this->_getBodyAsString());
 
@@ -204,7 +206,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
             'ids' => ['00000000-0000-0000-0000-000000000003']
         ];
 
-        $this->post('/duplicates/duplicates/merge/Articles/' . $id, json_encode($data));
+        $this->post('/duplicates/duplicates/merge/Articles/' . $id, $data);
         $this->assertResponseCode(200);
         $this->assertJson($this->_getBodyAsString());
         // duplicate records were not affected

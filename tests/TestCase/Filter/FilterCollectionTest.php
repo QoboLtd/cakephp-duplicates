@@ -11,6 +11,11 @@ use Qobo\Duplicates\Filter\StartsWithFilter;
 class FilterCollectionTest extends TestCase
 {
     /**
+     * @var \IteratorAggregate
+     */
+    private $instance;
+
+    /**
      * {@inheritDoc}
      */
     public function setUp()
@@ -35,7 +40,7 @@ class FilterCollectionTest extends TestCase
         parent::tearDown();
     }
 
-    public function testFilterInstance()
+    public function testFilterInstance() : void
     {
         foreach ($this->instance as $filter) {
             $this->assertInstanceOf(FilterInterface::class, $filter);

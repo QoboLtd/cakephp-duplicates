@@ -12,6 +12,26 @@ use Qobo\Duplicates\Rule;
 
 class PersisterTest extends TestCase
 {
+    /**
+     * @var \Qobo\Duplicates\RuleInterface
+     */
+    private $rule;
+
+    /**
+     * @var \Cake\ORM\Table
+     */
+    private $table;
+
+    /**
+     * @var \Qobo\Duplicates\Finder
+     */
+    private $finder;
+
+    /**
+     * @var \Cake\Datasource\ResultSetInterface
+     */
+    private $resultSet;
+
     public $fixtures = [
         'plugin.Qobo/Duplicates.articles',
         'plugin.Qobo/Duplicates.duplicates'
@@ -91,7 +111,10 @@ class PersisterTest extends TestCase
 
         $this->assertFalse($query->isEmpty());
 
-        $entity = $query->first();
+        /**
+         * @var \Cake\Datasource\EntityInterface
+         */
+        $entity = $query->firstOrFail();
         $this->assertSame('00000000-0000-0000-0000-000000000002', $entity->get('original_id'));
         $this->assertSame('00000000-0000-0000-0000-000000000003', $entity->get('duplicate_id'));
     }
@@ -114,7 +137,10 @@ class PersisterTest extends TestCase
 
         $this->assertFalse($query->isEmpty());
 
-        $entity = $query->first();
+        /**
+         * @var \Cake\Datasource\EntityInterface
+         */
+        $entity = $query->firstOrFail();
         $this->assertSame('00000000-0000-0000-0000-000000000002', $entity->get('original_id'));
         $this->assertSame('00000000-0000-0000-0000-000000000003', $entity->get('duplicate_id'));
     }

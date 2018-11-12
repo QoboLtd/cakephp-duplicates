@@ -152,7 +152,7 @@ class ManagerTest extends TestCase
     {
         // trigger callback
         if ('' !== trim($callback)) {
-            call_user_func([$this, $callback]);
+            $this->{$callback}();
         }
 
         $id = '00000000-0000-0000-0000-000000000003';
@@ -239,7 +239,7 @@ class ManagerTest extends TestCase
     {
         // trigger callback
         if ('' !== trim($callback)) {
-            call_user_func([$this, $callback]);
+            $this->{$callback}();
         }
 
         $resultSet = $this->Duplicates->find('all')->all();
