@@ -16,7 +16,6 @@ use Cake\Datasource\RepositoryInterface;
 use Cake\Datasource\ResultSetInterface;
 use Cake\ORM\Association;
 use Cake\ORM\TableRegistry;
-use Exception;
 
 /**
  * Duplicates Manager
@@ -233,19 +232,15 @@ final class Manager
     private function _process(EntityInterface $duplicate) : bool
     {
         return $this->target->getConnection()->transactional(function () use ($duplicate) {
-            try {
-                if (! $this->merge()) {
-                    return false;
-                }
+            if (! $this->merge()) {
+                return false;
+            }
 
-                if (! $this->inherit($duplicate)) {
-                    return false;
-                }
+            if (! $this->inherit($duplicate)) {
+                return false;
+            }
 
-                if (! $this->delete($duplicate)) {
-                    return false;
-                }
-            } catch (Exception $e) {
+            if (! $this->delete($duplicate)) {
                 return false;
             }
 
