@@ -55,6 +55,16 @@ class RuleTest extends TestCase
         }
     }
 
+    public function testBuildFilters(): void
+    {
+        $expected = [
+            'SUBSTR(title, 1, 10)' => 'literal',
+            'SUBSTR(excerpt, -10, 10)' => 'literal'
+        ];
+
+        $this->assertSame($expected, $this->instance->buildFilters());
+    }
+
     public function testConstructWithInvalidNameString(): void
     {
         $this->expectException(InvalidArgumentException::class);
