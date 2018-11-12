@@ -296,7 +296,12 @@ final class Manager
      */
     private function delete(EntityInterface $duplicate) : bool
     {
-        if (! $this->table->delete($this->fetchEntry($duplicate), ['atomic' => false])) {
+        $entry = $this->fetchEntry($duplicate);
+        if (null === $entry) {
+            return false;
+        }
+
+        if (! $this->table->delete($entry, ['atomic' => false])) {
             return false;
         }
 
