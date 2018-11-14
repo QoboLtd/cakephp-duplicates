@@ -259,10 +259,6 @@ class DuplicatesTable extends Table
         }
 
         $table = TableRegistry::getTableLocator()->get($resultSet->first()->get('model'));
-        $ids = [];
-        foreach ($resultSet as $entity) {
-            $ids[] = $entity->get('duplicate_id');
-        }
 
         $primaryKey = $table->getPrimaryKey();
         if (! is_string($primaryKey)) {
@@ -276,6 +272,11 @@ class DuplicatesTable extends Table
             ->first();
         if (null === $original) {
             return [];
+        }
+
+        $ids = [];
+        foreach ($resultSet as $entity) {
+            $ids[] = $entity->get('duplicate_id');
         }
 
         $data = [
