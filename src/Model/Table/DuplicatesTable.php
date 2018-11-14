@@ -215,10 +215,24 @@ class DuplicatesTable extends Table
                 ->limit((int)$options['size']);
         }
 
+        $primaryKey = $table->getPrimaryKey();
+        if (! is_string($primaryKey)) {
+            throw new InvalidArgumentException('Primary key must be a string');
+        }
+
         foreach ($query->all() as $entity) {
+            /** @var \Cake\Datasource\EntityInterface|null */
+            $original = $table->find()
+                ->where([$primaryKey => $entity->get('original_id')])
+                ->enableHydration(true)
+                ->first();
+            if (null === $original) {
+                continue;
+            }
+
             array_push($result['data'], [
                 'id' => $entity->get('original_id'),
-                'value' => $table->get($entity->get('original_id'))->get($table->getDisplayField()),
+                'value' => $original->get($table->getDisplayField()),
                 'count' => (int)$entity->get('count')
             ]);
         }
@@ -245,15 +259,24 @@ class DuplicatesTable extends Table
         }
 
         $table = TableRegistry::getTableLocator()->get($resultSet->first()->get('model'));
-        $original = $table->get($id);
-        $ids = [];
-        foreach ($resultSet as $entity) {
-            $ids[] = $entity->get('duplicate_id');
-        }
 
         $primaryKey = $table->getPrimaryKey();
         if (! is_string($primaryKey)) {
             throw new InvalidArgumentException('Primary key must be a string');
+        }
+
+        /** @var \Cake\Datasource\EntityInterface|null */
+        $original = $table->find()
+            ->where([$primaryKey => $id])
+            ->enableHydration(true)
+            ->first();
+        if (null === $original) {
+            return [];
+        }
+
+        $ids = [];
+        foreach ($resultSet as $entity) {
+            $ids[] = $entity->get('duplicate_id');
         }
 
         $data = [

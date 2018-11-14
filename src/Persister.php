@@ -115,9 +115,24 @@ final class Persister
     private function save(array $data): bool
     {
         $table = TableRegistry::getTableLocator()->get('Qobo/Duplicates.Duplicates');
+        /**
+         * This docblock was added to avoid the confusion created by
+         * phpstan 0.9 and how union and intersection types are treated.
+         *
+         * @link https://medium.com/@ondrejmirtes/union-types-vs-intersection-types-fd44a8eacbb
+         * @var \Cake\Datasource\EntityInterface[]|\Cake\ORM\ResultSet
+         */
         $entities = $table->newEntities($data);
 
         if (! $table->saveMany($entities)) {
+            /**
+             * This docblock was added to avoid the confusion created by
+             * phpstan 0.9 and how union and intersection types are treated.
+             *
+             * @link https://medium.com/@ondrejmirtes/union-types-vs-intersection-types-fd44a8eacbb
+             * @var \Cake\Datasource\EntityInterface[]
+             */
+            $entities = $entities;
             array_walk($entities, function ($entity) {
                 array_push($this->errors, json_encode($entity->getErrors()));
             });
