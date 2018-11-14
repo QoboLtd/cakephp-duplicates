@@ -88,7 +88,7 @@ final class Manager
      */
     public function __construct(RepositoryInterface $table, EntityInterface $original, array $data = [])
     {
-        $this->table = TableRegistry::get('Qobo/Duplicates.Duplicates');
+        $this->table = TableRegistry::getTableLocator()->get('Qobo/Duplicates.Duplicates');
         $this->target = $table;
         $this->original = $original;
 

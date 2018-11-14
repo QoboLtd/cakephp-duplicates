@@ -1,6 +1,7 @@
 <?php
 namespace Qobo\Duplicates\Test\TestCase\Shell;
 
+use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\ConsoleIntegrationTestCase;
@@ -19,7 +20,7 @@ class MapDuplicatesShellTest extends ConsoleIntegrationTestCase
     /**
      * ConsoleIo mock
      *
-     * @var \Cake\Console\ConsoleIo|\PHPUnit_Framework_MockObject_MockObject
+     * @var \PHPUnit_Framework_MockObject_MockObject
      */
     public $io;
 
@@ -39,7 +40,9 @@ class MapDuplicatesShellTest extends ConsoleIntegrationTestCase
     {
         parent::setUp();
         $this->io = $this->getMockBuilder('Cake\Console\ConsoleIo')->getMock();
-        $this->MapDuplicatesShell = new MapDuplicatesShell($this->io);
+        if ($this->io instanceof ConsoleIo) {
+            $this->MapDuplicatesShell = new MapDuplicatesShell($this->io);
+        }
     }
 
     /**

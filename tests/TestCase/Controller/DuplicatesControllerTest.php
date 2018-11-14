@@ -170,7 +170,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         // get duplcicates count
         $count = $this->table->find('all')->count();
 
-        $table = TableRegistry::get('Articles');
+        $table = TableRegistry::getTableLocator()->get('Articles');
         $associations = $table->associations()->keys();
 
         $data = [
