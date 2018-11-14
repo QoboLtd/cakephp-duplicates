@@ -126,8 +126,10 @@ final class Persister
 
         if (! $table->saveMany($entities)) {
             /**
-             * See docblock on line 118.
+             * This docblock was added to avoid the confusion created by
+             * phpstan 0.9 and how union and intersection types are treated.
              *
+             * @link https://medium.com/@ondrejmirtes/union-types-vs-intersection-types-fd44a8eacbb
              * @var \Cake\Datasource\EntityInterface[]
              */
             $entities = $entities;
