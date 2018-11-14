@@ -86,7 +86,7 @@ class DuplicatesController extends AppController
     {
         $this->request->allowMethod('delete');
 
-        $table = TableRegistry::get($model);
+        $table = TableRegistry::getTableLocator()->get($model);
 
         $primaryKey = $table->getPrimaryKey();
         if (! is_string($primaryKey)) {
@@ -139,7 +139,7 @@ class DuplicatesController extends AppController
     {
         $this->request->allowMethod('post');
 
-        $table = TableRegistry::get($model);
+        $table = TableRegistry::getTableLocator()->get($model);
 
         $primaryKey = $table->getPrimaryKey();
         if (! is_string($primaryKey)) {

@@ -50,13 +50,13 @@ class ManagerTest extends TestCase
         /**
          * @var \Qobo\Duplicates\Model\Table\DuplicatesTable $table
          */
-        $table = TableRegistry::get('Qobo/Duplicates.Duplicates');
+        $table = TableRegistry::getTableLocator()->get('Qobo/Duplicates.Duplicates');
         $this->Duplicates = $table;
 
         /**
          * @var \Qobo\Duplicates\Test\App\Model\Table\ArticlesTable $table
          */
-        $table = TableRegistry::get('Articles');
+        $table = TableRegistry::getTableLocator()->get('Articles');
         $this->table = $table;
     }
 
