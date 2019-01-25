@@ -299,61 +299,6 @@ class DuplicatesTable extends Table
     }
 
     /**
-     * Deletes duplicates by IDs.
-     *
-     * @param string $model Model name
-     * @param mixed[] $ids Duplicate IDs
-     * @return bool
-     */
-    public function deleteDuplicates(string $model, array $ids): bool
-    {
-        trigger_error(
-            sprintf('%s() is deprecated. ' . 'Use \Qobo\Duplicates\Manager instead.', __METHOD__),
-            E_USER_DEPRECATED
-        );
-
-        $table = TableRegistry::getTableLocator()->get($model);
-
-        $primaryKey = $table->getPrimaryKey();
-        if (! is_string($primaryKey)) {
-            throw new InvalidArgumentException('Primary key must be a string');
-        }
-
-        foreach ($ids as $id) {
-            /**
-             * @var \Cake\Datasource\EntityInterface|null
-             */
-            $record = $table->find()
-                ->where([$primaryKey => $id])
-                ->enableHydration()
-                ->first();
-
-            if (null === $record) {
-                return false;
-            }
-
-            /**
-             * @var \Cake\Datasource\EntityInterface|null
-             */
-            $entity = $this->find()
-                ->where(['OR' => ['duplicate_id' => $id, 'original_id' => $id]])
-                ->enableHydration()
-                ->first();
-
-            if (null === $entity) {
-                return false;
-            }
-
-            $this->getConnection()->transactional(function () use ($table, $record, $entity) {
-                $table->delete($record, ['atomic' => false]);
-                $this->delete($entity, ['atomic' => false]);
-            });
-        }
-
-        return true;
-    }
-
-    /**
      * Flags duplicates as false positive by rule name and duplicate IDs.
      *
      * @param string $rule Rule name
@@ -378,44 +323,5 @@ class DuplicatesTable extends Table
         $this->updateAll(['status' => 'processed'], ['id IN' => $duplicateIds]);
 
         return true;
-    }
-
-    /**
-     * Merges duplicates by updating original record with provided data.
-     *
-     * @param string $model Model name
-     * @param string $id Original id
-     * @param mixed[] $data Merge data
-     * @return bool
-     */
-    public function mergeDuplicates(string $model, string $id, array $data): bool
-    {
-        trigger_error(
-            sprintf('%s() is deprecated. ' . 'Use \Qobo\Duplicates\Manager instead.', __METHOD__),
-            E_USER_DEPRECATED
-        );
-
-        $table = TableRegistry::getTableLocator()->get($model);
-
-        $primaryKey = $table->getPrimaryKey();
-        if (! is_string($primaryKey)) {
-            throw new InvalidArgumentException('Primary key must be a string');
-        }
-
-        /**
-         * @var \Cake\Datasource\EntityInterface|null
-         */
-        $entity = $table->find()
-            ->where([$primaryKey => $id])
-            ->enableHydration()
-            ->first();
-
-        if (null === $entity) {
-            return false;
-        }
-
-        $entity = $table->patchEntity($entity, $data);
-
-        return (bool)$table->save($entity);
     }
 }
