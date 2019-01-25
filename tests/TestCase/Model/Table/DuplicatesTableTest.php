@@ -184,48 +184,6 @@ class DuplicatesTableTest extends TestCase
         $this->assertSame([], $result);
     }
 
-    public function testDeleteDuplicates(): void
-    {
-        $this->deprecated(function () {
-            $ids = ['00000000-0000-0000-0000-000000000002'];
-
-            $this->assertTrue($this->Duplicates->deleteDuplicates('Articles', $ids));
-
-            $query = Tableregistry::getTableLocator()
-                ->get('Articles')
-                ->find('all')
-                ->where(['id' => $ids[0]]);
-            $this->assertTrue($query->isEmpty());
-
-            $query = $this->Duplicates->find('all')
-                ->where(['id' => '00000000-0000-0000-0000-000000000001']);
-            $this->assertTrue($query->isEmpty());
-        });
-    }
-
-    public function testDeleteDuplicatesWithInvalidID(): void
-    {
-        $this->deprecated(function () {
-            // get duplcicates count
-            $count = $this->Duplicates->find('all')->count();
-            $ids = [
-                '00000000-0000-0000-0000-000000000001' // invalid duplicate ID
-            ];
-
-            $this->assertFalse($this->Duplicates->deleteDuplicates('Articles', $ids));
-
-            // invalid duplicate ID
-            $query = TableRegistry::getTableLocator()
-                ->get('Articles')
-                ->find('all')
-                ->where(['id' => $ids[0]]);
-            $this->assertFalse($query->isEmpty());
-
-            // duplicate records were not affected
-            $this->assertSame($count, $this->Duplicates->find('all')->count());
-        });
-    }
-
     public function testFalsePositiveByRuleAndIDs(): void
     {
         $ids = ['00000000-0000-0000-0000-000000000003'];
@@ -243,33 +201,6 @@ class DuplicatesTableTest extends TestCase
 
         $this->assertFalse($this->Duplicates->falsePositiveByRuleAndIDs('byTitle', $ids));
         $this->assertEquals($resultSet, $this->Duplicates->find()->all());
-    }
-
-    public function testMergeDuplicates(): void
-    {
-        $this->deprecated(function () {
-            $id = '00000000-0000-0000-0000-000000000002';
-            $data = ['excerpt' => 'Third'];
-
-            $this->assertTrue($this->Duplicates->mergeDuplicates('Articles', $id, $data));
-            $this->assertSame(
-                $data['excerpt'],
-                TableRegistry::getTableLocator()
-                    ->get('Articles')
-                    ->get($id)
-                    ->get('excerpt')
-            );
-        });
-    }
-
-    public function testMergeDuplicatesWithInvalidID(): void
-    {
-        $this->deprecated(function () {
-            $id = '00000000-0000-0000-0000-000000000404';
-            $data = ['excerpt' => 'Third'];
-
-            $this->assertFalse($this->Duplicates->mergeDuplicates('Articles', $id, $data));
-        });
     }
 
     /**
