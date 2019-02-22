@@ -12,6 +12,8 @@
 namespace Qobo\Duplicates\Model\Table;
 
 use Cake\Core\Configure;
+use Cake\Datasource\EntityInterface;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Datasource\RepositoryInterface;
 use Cake\Datasource\ResultSetInterface;
 use Cake\Event\Event;
@@ -28,6 +30,7 @@ use Qobo\Duplicates\RuleInterface;
 use Qobo\Utils\ModuleConfig\ConfigType;
 use Qobo\Utils\ModuleConfig\ModuleConfig;
 use Qobo\Utils\Utility;
+use Webmozart\Assert\Assert;
 
 /**
  * Duplicates Model
@@ -221,15 +224,16 @@ class DuplicatesTable extends Table
         }
 
         foreach ($query->all() as $entity) {
-            /** @var \Cake\Datasource\EntityInterface|null */
-            $original = $table->find()
-                ->where([$primaryKey => $entity->get('original_id')])
-                ->enableHydration(true)
-                ->first();
-            if (null === $original) {
+            try {
+                $original = $table->find()
+                    ->where([$primaryKey => $entity->get('original_id')])
+                    ->enableHydration(true)
+                    ->firstOrFail();
+            } catch (RecordNotFoundException $e) {
                 continue;
             }
 
+            Assert::isInstanceOf($original, EntityInterface::class);
             array_push($result['data'], [
                 'id' => $entity->get('original_id'),
                 'value' => $original->get($table->getDisplayField()),
@@ -266,11 +270,12 @@ class DuplicatesTable extends Table
         }
 
         /** @var \Cake\Datasource\EntityInterface|null */
-        $original = $table->find()
-            ->where([$primaryKey => $id])
-            ->enableHydration(true)
-            ->first();
-        if (null === $original) {
+        try {
+            $original = $table->find()
+                ->where([$primaryKey => $id])
+                ->enableHydration(true)
+                ->firstOrFail();
+        } catch (RecordNotFoundException $e) {
             return [];
         }
 
@@ -279,6 +284,7 @@ class DuplicatesTable extends Table
             $ids[] = $entity->get('duplicate_id');
         }
 
+        Assert::isInstanceOf($original, EntityInterface::class);
         $data = [
             'original' => $original,
             'duplicates' => $table->find()->where([$primaryKey . ' IN' => $ids])->all(),
