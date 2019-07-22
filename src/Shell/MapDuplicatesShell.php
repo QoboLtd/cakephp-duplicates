@@ -36,7 +36,7 @@ class MapDuplicatesShell extends Shell
     /**
      * Finds and persists duplicate records.
      *
-     * @return void
+     * @return bool|int|null
      */
     public function main()
     {
@@ -45,13 +45,13 @@ class MapDuplicatesShell extends Shell
         } catch (MutexException $e) {
             $this->warn($e->getMessage());
 
-            return;
+            return false;
         }
 
         if (! $lock->lock()) {
             $this->warn('Map duplicates is already in progress');
 
-            return;
+            return false;
         }
 
         /**
@@ -69,5 +69,7 @@ class MapDuplicatesShell extends Shell
             $this->abort('Aborting, failed to persist duplicate records.');
 
         $lock->unlock();
+
+        return true;
     }
 }
