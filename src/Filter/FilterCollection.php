@@ -35,7 +35,7 @@ final class FilterCollection implements IteratorAggregate
     {
         $this->filters = $filters;
     }
-    
+
     /**
      * {@inheritDoc}
      */
