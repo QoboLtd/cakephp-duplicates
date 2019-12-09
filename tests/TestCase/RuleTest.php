@@ -26,7 +26,7 @@ class RuleTest extends TestCase
 
         $filters = [
             new StartsWithFilter(['field' => 'title', 'length' => 10]),
-            new EndsWithFilter(['field' => 'excerpt', 'length' => 10])
+            new EndsWithFilter(['field' => 'excerpt', 'length' => 10]),
         ];
 
         $this->instance = new Rule('foobar', new FilterCollection(...$filters));
@@ -59,7 +59,7 @@ class RuleTest extends TestCase
     {
         $expected = [
             'SUBSTR(title, 1, 10)' => 'literal',
-            'SUBSTR(excerpt, -10, 10)' => 'literal'
+            'SUBSTR(excerpt, -10, 10)' => 'literal',
         ];
 
         $this->assertSame($expected, $this->instance->buildFilters());
@@ -70,7 +70,7 @@ class RuleTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         new Rule('  ', new FilterCollection(...[
-            new StartsWithFilter(['field' => 'title', 'length' => 10])
+            new StartsWithFilter(['field' => 'title', 'length' => 10]),
         ]));
     }
 }

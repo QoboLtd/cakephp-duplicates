@@ -8,25 +8,25 @@ class TagsFixture extends TestFixture
     public $fields = [
         'id' => ['type' => 'uuid', 'null' => false],
         'name' => ['type' => 'string', 'null' => false],
-        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]]
+        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]],
     ];
 
     public $records = [
         [
             'id' => '00000000-0000-0000-0000-000000000001',
-            'name' => '#first-tag'
+            'name' => '#first-tag',
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000002',
-            'name' => '#second-tag'
+            'name' => '#second-tag',
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000003',
-            'name' => '#third-tag'
+            'name' => '#third-tag',
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000004',
-            'name' => '#fourth-tag'
-        ]
+            'name' => '#fourth-tag',
+        ],
     ];
 }

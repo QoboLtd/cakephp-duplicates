@@ -25,7 +25,7 @@ class ManagerTest extends TestCase
         'plugin.Qobo/Duplicates.authors',
         'plugin.Qobo/Duplicates.comments',
         'plugin.Qobo/Duplicates.duplicates',
-        'plugin.Qobo/Duplicates.tags'
+        'plugin.Qobo/Duplicates.tags',
     ];
 
     /**
@@ -176,7 +176,7 @@ class ManagerTest extends TestCase
         $ids = [
             '00000000-0000-0000-0000-000000000003',
             '00000000-0000-0000-0000-000000000004',
-            '00000000-0000-0000-0000-000000000001' // invalid IDs are discarded
+            '00000000-0000-0000-0000-000000000001', // invalid IDs are discarded
         ];
         $invalidDuplicate = $this->table->get($ids[2], ['contain' => $associations]);
 
@@ -211,7 +211,7 @@ class ManagerTest extends TestCase
         $this->assertEquals([
             '00000000-0000-0000-0000-000000000001',
             '00000000-0000-0000-0000-000000000002',
-            '00000000-0000-0000-0000-000000000003'
+            '00000000-0000-0000-0000-000000000003',
         ], $comments);
 
         $tags = array_map(function ($tag) {
@@ -222,7 +222,7 @@ class ManagerTest extends TestCase
             '00000000-0000-0000-0000-000000000001',
             '00000000-0000-0000-0000-000000000002',
             '00000000-0000-0000-0000-000000000003',
-            '00000000-0000-0000-0000-000000000004'
+            '00000000-0000-0000-0000-000000000004',
         ], $tags);
 
         $query = $this->Duplicates->find('all')->where(['id' => '00000000-0000-0000-0000-000000000001']);
@@ -247,11 +247,11 @@ class ManagerTest extends TestCase
 
         $ids = [
             'original' => '00000000-0000-0000-0000-000000000002',
-            'duplicate' => '00000000-0000-0000-0000-000000000003'
+            'duplicate' => '00000000-0000-0000-0000-000000000003',
         ];
         $expected = [
             'original' => $this->table->get($ids['original'], ['contain' => $associations]),
-            'duplicate' => $this->table->get($ids['duplicate'], ['contain' => $associations])
+            'duplicate' => $this->table->get($ids['duplicate'], ['contain' => $associations]),
         ];
 
         $manager = new Manager($this->table, $this->table->get($ids['original']), $data);
@@ -281,11 +281,11 @@ class ManagerTest extends TestCase
 
         $ids = [
             'original' => '00000000-0000-0000-0000-000000000002',
-            'duplicate' => '00000000-0000-0000-0000-000000000003'
+            'duplicate' => '00000000-0000-0000-0000-000000000003',
         ];
         $expected = [
             'original' => $this->table->get($ids['original'], ['contain' => $associations]),
-            'duplicate' => $this->table->get($ids['duplicate'], ['contain' => $associations])
+            'duplicate' => $this->table->get($ids['duplicate'], ['contain' => $associations]),
         ];
 
         $manager = new Manager($this->table, $this->table->get($ids['original']), []);
@@ -307,7 +307,7 @@ class ManagerTest extends TestCase
         return [
             [['title' => null]],
             [[], 'preventEntryDeletion'],
-            [[], 'preventDuplicateDeletion']
+            [[], 'preventDuplicateDeletion'],
         ];
     }
 

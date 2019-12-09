@@ -34,7 +34,7 @@ class PersisterTest extends TestCase
 
     public $fixtures = [
         'plugin.Qobo/Duplicates.articles',
-        'plugin.Qobo/Duplicates.duplicates'
+        'plugin.Qobo/Duplicates.duplicates',
     ];
 
     /**
@@ -46,7 +46,7 @@ class PersisterTest extends TestCase
 
         $filters = [
             new EndsWithFilter(['field' => 'title', 'length' => 3]),
-            new EndsWithFilter(['field' => 'excerpt', 'length' => 1])
+            new EndsWithFilter(['field' => 'excerpt', 'length' => 1]),
         ];
         $this->rule = new Rule('foobar', new FilterCollection(...$filters));
         $this->table = TableRegistry::getTableLocator()->get('Articles');

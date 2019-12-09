@@ -107,7 +107,7 @@ class DuplicatesTable extends Table
                 'message' => sprintf(
                     'Only following statuses are supported: "%s"',
                     implode(', ', Configure::readOrFail('Duplicates.status.list'))
-                )
+                ),
             ]);
 
         return $validator;
@@ -210,7 +210,7 @@ class DuplicatesTable extends Table
 
         $result = [
             'pagination' => ['count' => $query->count()],
-            'data' => []
+            'data' => [],
         ];
 
         if (isset($options['page']) && isset($options['size'])) {
@@ -237,7 +237,7 @@ class DuplicatesTable extends Table
             array_push($result['data'], [
                 'id' => $entity->get('original_id'),
                 'value' => $original->get($table->getDisplayField()),
-                'count' => (int)$entity->get('count')
+                'count' => (int)$entity->get('count'),
             ]);
         }
 
@@ -289,11 +289,11 @@ class DuplicatesTable extends Table
             'original' => $original,
             'duplicates' => $table->find()->where([$primaryKey . ' IN' => $ids])->all(),
             'fields' => $original->visibleProperties(),
-            'virtualFields' => $original->getVirtual()
+            'virtualFields' => $original->getVirtual(),
         ];
         $event = new Event((string)EventName::DUPLICATE_AFTER_FIND(), $this, [
             'table' => $table,
-            'data' => $data
+            'data' => $data,
         ]);
         $this->getEventManager()->dispatch($event);
 

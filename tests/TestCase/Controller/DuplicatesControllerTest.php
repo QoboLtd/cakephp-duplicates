@@ -18,7 +18,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         'plugin.Qobo/Duplicates.authors',
         'plugin.Qobo/Duplicates.comments',
         'plugin.Qobo/Duplicates.duplicates',
-        'plugin.Qobo/Duplicates.tags'
+        'plugin.Qobo/Duplicates.tags',
     ];
 
     public function setUp()
@@ -31,8 +31,8 @@ class DuplicatesControllerTest extends IntegrationTestCase
             'headers' => [
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
-                'X-Requested-With' => 'XMLHttpRequest'
-            ]
+                'X-Requested-With' => 'XMLHttpRequest',
+            ],
         ]);
     }
 
@@ -107,8 +107,8 @@ class DuplicatesControllerTest extends IntegrationTestCase
         $data = [
             'ids' => [
                 '00000000-0000-0000-0000-000000000003',
-                '00000000-0000-0000-0000-000000000001' // non-duplicated record
-            ]
+                '00000000-0000-0000-0000-000000000001', // non-duplicated record
+            ],
         ];
 
         $this->_sendRequest(
@@ -133,7 +133,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         // invalid ID
         $id = '00000000-0000-0000-0000-000000000404';
         $data = [
-            'ids' => ['00000000-0000-0000-0000-000000000003']
+            'ids' => ['00000000-0000-0000-0000-000000000003'],
         ];
 
         $this->_sendRequest(
@@ -178,8 +178,8 @@ class DuplicatesControllerTest extends IntegrationTestCase
             'ids' => [
                 '00000000-0000-0000-0000-000000000003',
                 '00000000-0000-0000-0000-000000000001', // non-duplicated record
-                '00000000-0000-0000-0000-000000000404' // non-existing record
-            ]
+                '00000000-0000-0000-0000-000000000404', // non-existing record
+            ],
         ];
         $invalidDuplicate = $table->get($data['ids'][1], ['contain' => $associations]);
 
@@ -206,7 +206,7 @@ class DuplicatesControllerTest extends IntegrationTestCase
         $id = '00000000-0000-0000-0000-000000000404';
         $data = [
             'data' => ['excerpt' => 'Third'],
-            'ids' => ['00000000-0000-0000-0000-000000000003']
+            'ids' => ['00000000-0000-0000-0000-000000000003'],
         ];
 
         $this->post('/duplicates/duplicates/merge/Articles/' . $id, $data);

@@ -25,7 +25,7 @@ class FilterCollectionTest extends TestCase
         $filters = [
             new ExactFilter(['field' => 'foo']),
             new StartsWithFilter(['field' => 'foo']),
-            new EndsWithFilter(['field' => 'foo'])
+            new EndsWithFilter(['field' => 'foo']),
         ];
         $this->instance = new FilterCollection(...$filters);
     }
@@ -40,7 +40,7 @@ class FilterCollectionTest extends TestCase
         parent::tearDown();
     }
 
-    public function testFilterInstance() : void
+    public function testFilterInstance(): void
     {
         foreach ($this->instance as $filter) {
             $this->assertInstanceOf(FilterInterface::class, $filter);

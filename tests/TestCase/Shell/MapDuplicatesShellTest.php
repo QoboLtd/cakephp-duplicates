@@ -14,7 +14,7 @@ class MapDuplicatesShellTest extends ConsoleIntegrationTestCase
 {
     public $fixtures = [
         'plugin.Qobo/Duplicates.articles',
-        'plugin.Qobo/Duplicates.duplicates'
+        'plugin.Qobo/Duplicates.duplicates',
     ];
 
     /**
