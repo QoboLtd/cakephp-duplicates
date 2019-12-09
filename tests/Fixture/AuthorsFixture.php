@@ -8,17 +8,17 @@ class AuthorsFixture extends TestFixture
     public $fields = [
         'id' => ['type' => 'uuid', 'null' => false],
         'name' => ['type' => 'string', 'null' => false],
-        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]]
+        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]],
     ];
 
     public $records = [
         [
             'id' => '00000000-0000-0000-0000-000000000001',
-            'name' => 'First author'
+            'name' => 'First author',
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000002',
-            'name' => 'Second author'
-        ]
+            'name' => 'Second author',
+        ],
     ];
 }

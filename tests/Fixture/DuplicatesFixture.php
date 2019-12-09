@@ -21,7 +21,7 @@ class DuplicatesFixture extends TestFixture
         ],
         '_options' => [
             'engine' => 'InnoDB',
-            'collation' => 'latin1_swedish_ci'
+            'collation' => 'latin1_swedish_ci',
         ],
     ];
 
@@ -34,7 +34,7 @@ class DuplicatesFixture extends TestFixture
             'rule' => 'byTitle',
             'status' => 'pending',
             'created' => '2018-08-07 17:45:16',
-            'modified' => '2018-08-07 17:45:16'
+            'modified' => '2018-08-07 17:45:16',
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000002',
@@ -44,7 +44,7 @@ class DuplicatesFixture extends TestFixture
             'rule' => 'byTitle',
             'status' => 'pending',
             'created' => '2018-10-22 16:56:06',
-            'modified' => '2018-10-22 16:56:06'
+            'modified' => '2018-10-22 16:56:06',
         ],
     ];
 }

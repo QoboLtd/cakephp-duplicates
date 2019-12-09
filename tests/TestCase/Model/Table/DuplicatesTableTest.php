@@ -18,7 +18,7 @@ class DuplicatesTableTest extends TestCase
     public $fixtures = [
         'plugin.CakeDC/Users.users',
         'plugin.Qobo/Duplicates.articles',
-        'plugin.Qobo/Duplicates.duplicates'
+        'plugin.Qobo/Duplicates.duplicates',
     ];
 
     /**
@@ -101,7 +101,7 @@ class DuplicatesTableTest extends TestCase
             'original_id' => '00000000-0000-0000-0000-000000000001',
             'duplicate_id' => '00000000-0000-0000-0000-000000000001',
             'rule' => 'byTitleName',
-            'status' => 'pending'
+            'status' => 'pending',
         ];
 
         $entity = $this->Duplicates->newEntity();
@@ -124,8 +124,8 @@ class DuplicatesTableTest extends TestCase
         $expected = [
             'pagination' => ['count' => 1],
             'data' => [
-                ['id' => '00000000-0000-0000-0000-000000000002', 'value' => 'Second article', 'count' => 2]
-            ]
+                ['id' => '00000000-0000-0000-0000-000000000002', 'value' => 'Second article', 'count' => 2],
+            ],
         ];
 
         $this->assertSame($expected, $this->Duplicates->fetchByModelAndRule('Articles', 'byTitle', []));
@@ -137,8 +137,8 @@ class DuplicatesTableTest extends TestCase
         $expected = [
             'pagination' => ['count' => 1],
             'data' => [
-                ['id' => '00000000-0000-0000-0000-000000000002', 'value' => 'Second article', 'count' => 2]
-            ]
+                ['id' => '00000000-0000-0000-0000-000000000002', 'value' => 'Second article', 'count' => 2],
+            ],
         ];
 
         $this->assertSame($expected, $this->Duplicates->fetchByModelAndRule('Articles', 'byTitle', $options));
@@ -146,7 +146,7 @@ class DuplicatesTableTest extends TestCase
         $options = ['page' => 1, 'size' => 1];
         $expected = [
             'pagination' => ['count' => 1],
-            'data' => [] // page 1 has no data
+            'data' => [], // page 1 has no data
         ];
 
         $this->assertSame($expected, $this->Duplicates->fetchByModelAndRule('Articles', 'byTitle', $options));

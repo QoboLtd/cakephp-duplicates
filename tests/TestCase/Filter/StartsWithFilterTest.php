@@ -31,7 +31,7 @@ class StartsWithFilterTest extends TestCase
         parent::tearDown();
     }
 
-    public function testGetValue() : void
+    public function testGetValue(): void
     {
         $this->assertSame('SUBSTR(foo, 1, 10)', $this->instance->getValue());
     }

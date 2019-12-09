@@ -5,7 +5,7 @@ return [
         'path' => CONFIG . 'Modules' . DS,
         'status' => [
             'default' => 'pending',
-            'list' => ['pending', 'processed']
-        ]
-    ]
+            'list' => ['pending', 'processed'],
+        ],
+    ],
 ];

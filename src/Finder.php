@@ -122,7 +122,7 @@ final class Finder
 
         $query->select([
                 $primaryKey => sprintf('GROUP_CONCAT(%s)', $primaryKey),
-                'checksum' => $query->func()->concat($this->rule->buildFilters())
+                'checksum' => $query->func()->concat($this->rule->buildFilters()),
             ])
             ->group('checksum')
             ->having(['COUNT(*) > ' => 1, 'checksum !=' => ''], ['COUNT(*)' => 'integer', 'checksum' => 'string']);

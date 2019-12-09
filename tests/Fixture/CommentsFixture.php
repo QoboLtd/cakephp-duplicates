@@ -9,24 +9,24 @@ class CommentsFixture extends TestFixture
         'id' => ['type' => 'uuid', 'null' => false],
         'article_id' => ['type' => 'uuid', 'null' => false],
         'content' => ['type' => 'string', 'null' => true],
-        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]]
+        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]],
     ];
 
     public $records = [
         [
             'id' => '00000000-0000-0000-0000-000000000001',
             'article_id' => '00000000-0000-0000-0000-000000000003',
-            'content' => 'First comment'
+            'content' => 'First comment',
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000002',
             'article_id' => '00000000-0000-0000-0000-000000000003',
-            'content' => 'Second comment'
+            'content' => 'Second comment',
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000003',
             'article_id' => '00000000-0000-0000-0000-000000000002',
-            'content' => 'Third comment'
-        ]
+            'content' => 'Third comment',
+        ],
     ];
 }

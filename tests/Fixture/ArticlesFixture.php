@@ -13,7 +13,7 @@ class ArticlesFixture extends TestFixture
         'body' => 'text',
         'created' => ['type' => 'datetime', 'null' => false],
         'modified' => ['type' => 'datetime', 'null' => false],
-        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]]
+        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]],
     ];
 
     public $records = [
@@ -24,7 +24,7 @@ class ArticlesFixture extends TestFixture
             'body' => 'First article body',
             'excerpt' => 'First',
             'created' => '2018-08-10 17:33:54',
-            'modified' => '2018-08-10 17:33:54'
+            'modified' => '2018-08-10 17:33:54',
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000002',
@@ -33,7 +33,7 @@ class ArticlesFixture extends TestFixture
             'body' => 'Second article body',
             'excerpt' => 'Second',
             'created' => '2018-08-10 17:33:55',
-            'modified' => '2018-08-10 17:33:55'
+            'modified' => '2018-08-10 17:33:55',
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000003',
@@ -42,7 +42,7 @@ class ArticlesFixture extends TestFixture
             'body' => 'Third article body',
             'excerpt' => 'Third',
             'created' => '2018-08-10 17:33:56',
-            'modified' => '2018-08-10 17:33:56'
+            'modified' => '2018-08-10 17:33:56',
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000004',
@@ -51,7 +51,7 @@ class ArticlesFixture extends TestFixture
             'body' => 'Fourth article body',
             'excerpt' => 'Fourth',
             'created' => '2018-08-10 17:33:57',
-            'modified' => '2018-08-10 17:33:57'
+            'modified' => '2018-08-10 17:33:57',
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000005',
@@ -60,7 +60,7 @@ class ArticlesFixture extends TestFixture
             'body' => 'Fifth article body',
             'excerpt' => 'Fifth',
             'created' => '2018-08-10 17:33:58',
-            'modified' => '2018-08-10 17:33:58'
+            'modified' => '2018-08-10 17:33:58',
         ],
     ];
 }

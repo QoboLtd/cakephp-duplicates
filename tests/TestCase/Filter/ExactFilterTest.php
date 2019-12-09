@@ -31,7 +31,7 @@ class ExactFilterTest extends TestCase
         parent::tearDown();
     }
 
-    public function testGetValue() : void
+    public function testGetValue(): void
     {
         $this->assertSame('foo', $this->instance->getValue());
     }

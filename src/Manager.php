@@ -105,7 +105,7 @@ final class Manager
      *
      * @return \Cake\ORM\Association[]
      */
-    private function getAssociations() : array
+    private function getAssociations(): array
     {
         if (! empty($this->associations)) {
             return $this->associations;
@@ -143,7 +143,7 @@ final class Manager
      *
      * @return string[]
      */
-    public function getErrors() : array
+    public function getErrors(): array
     {
         return $this->errors;
     }
@@ -154,7 +154,7 @@ final class Manager
      * @param \Cake\Datasource\ResultSetInterface $resultSet Duplicates result set
      * @return void
      */
-    public function addDuplicates(ResultSetInterface $resultSet) : void
+    public function addDuplicates(ResultSetInterface $resultSet): void
     {
         foreach ($resultSet as $duplicate) {
             $this->addDuplicate($duplicate);
@@ -167,7 +167,7 @@ final class Manager
      * @param \Cake\Datasource\EntityInterface $duplicate Duplicate entity
      * @return void
      */
-    public function addDuplicate(EntityInterface $duplicate) : void
+    public function addDuplicate(EntityInterface $duplicate): void
     {
         $entry = $this->fetchEntry($duplicate);
         $primaryKey = $this->target->getPrimaryKey();
@@ -192,7 +192,7 @@ final class Manager
      *
      * @return bool
      */
-    public function process() : bool
+    public function process(): bool
     {
         $primaryKey = $this->target->getPrimaryKey();
         if (! is_string($primaryKey)) {
@@ -221,7 +221,7 @@ final class Manager
      * @param \Cake\Datasource\EntityInterface $duplicate Duplicate entity
      * @return \Cake\Datasource\EntityInterface|null
      */
-    private function fetchEntry(EntityInterface $duplicate) : ?EntityInterface
+    private function fetchEntry(EntityInterface $duplicate): ?EntityInterface
     {
         $primaryKey = $this->target->getPrimaryKey();
         if (! is_string($primaryKey)) {
@@ -231,7 +231,7 @@ final class Manager
         return $this->table->find('all')
             ->where([
                 'duplicate_id' => $duplicate->get($primaryKey),
-                'original_id' => $this->original->get($primaryKey)
+                'original_id' => $this->original->get($primaryKey),
             ])
             ->first();
     }
@@ -248,7 +248,7 @@ final class Manager
      * @param \Cake\Datasource\EntityInterface $duplicate Duplicate entity
      * @return bool
      */
-    private function _process(EntityInterface $duplicate) : bool
+    private function _process(EntityInterface $duplicate): bool
     {
         return $this->target->getConnection()->transactional(function () use ($duplicate) {
             if (! $this->merge()) {
@@ -272,7 +272,7 @@ final class Manager
      *
      * @return bool
      */
-    private function merge() : bool
+    private function merge(): bool
     {
         // already merged
         if ($this->merged) {
@@ -298,7 +298,7 @@ final class Manager
      * @param \Cake\Datasource\EntityInterface $duplicate Duplicate entity
      * @return bool
      */
-    private function delete(EntityInterface $duplicate) : bool
+    private function delete(EntityInterface $duplicate): bool
     {
         $entry = $this->fetchEntry($duplicate);
         if (null === $entry) {
@@ -322,7 +322,7 @@ final class Manager
      * @param \Cake\Datasource\EntityInterface $duplicate Duplicate entity
      * @return bool
      */
-    private function inherit(EntityInterface $duplicate) : bool
+    private function inherit(EntityInterface $duplicate): bool
     {
         foreach ($this->getInheritData($duplicate) as $associationName => $data) {
             if (! $this->target->{$associationName}->link($this->original, $data, ['atomic' => false])) {
@@ -339,7 +339,7 @@ final class Manager
      * @param \Cake\Datasource\EntityInterface $duplicate Duplicate entity
      * @return mixed[]
      */
-    private function getInheritData(EntityInterface $duplicate) : array
+    private function getInheritData(EntityInterface $duplicate): array
     {
         // load duplicate associated data
         $this->target->loadInto($duplicate, array_keys($this->getAssociations()));
@@ -364,7 +364,7 @@ final class Manager
      * @param \Cake\ORM\Association $association Association instance
      * @return \Cake\Datasource\EntityInterface[]
      */
-    private function getInheritDataByAssociation(EntityInterface $duplicate, Association $association) : array
+    private function getInheritDataByAssociation(EntityInterface $duplicate, Association $association): array
     {
         if (empty($duplicate->get($association->getProperty()))) {
             return [];
@@ -396,7 +396,7 @@ final class Manager
      * @param string $primaryKey Primary key of associated data
      * @return \Cake\Datasource\EntityInterface[]
      */
-    private function filterInheritData(array $duplicateData, array $originalData, string $primaryKey) : array
+    private function filterInheritData(array $duplicateData, array $originalData, string $primaryKey): array
     {
         $existing = array_map(function ($entity) use ($primaryKey) {
             return $entity->get($primaryKey);

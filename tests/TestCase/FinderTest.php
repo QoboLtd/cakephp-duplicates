@@ -27,7 +27,7 @@ class FinderTest extends TestCase
 
         $this->filters = [
             new EndsWithFilter(['field' => 'title', 'length' => 3]),
-            new EndsWithFilter(['field' => 'excerpt', 'length' => 1])
+            new EndsWithFilter(['field' => 'excerpt', 'length' => 1]),
         ];
     }
 
