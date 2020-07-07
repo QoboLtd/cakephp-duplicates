@@ -22,7 +22,7 @@
         "optimize-autoloader": true
     },
     "require": {
-        "qobo/cakephp-utils": "dev-cakephp-v38a"
+        "qobo/cakephp-utils": "^v13.0"
     },
     "require-dev": {
         "qobo/cakephp-composer-dev": "^v1.0"
