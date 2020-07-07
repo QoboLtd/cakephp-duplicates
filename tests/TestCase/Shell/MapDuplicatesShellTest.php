@@ -13,8 +13,8 @@ use Qobo\Duplicates\Shell\MapDuplicatesShell;
 class MapDuplicatesShellTest extends ConsoleIntegrationTestCase
 {
     public $fixtures = [
-        'plugin.Qobo/Duplicates.articles',
-        'plugin.Qobo/Duplicates.duplicates',
+        'plugin.Qobo/Duplicates.Articles',
+        'plugin.Qobo/Duplicates.Duplicates',
     ];
 
     /**

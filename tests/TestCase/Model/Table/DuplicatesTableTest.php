@@ -16,9 +16,9 @@ use Qobo\Duplicates\Model\Table\DuplicatesTable;
 class DuplicatesTableTest extends TestCase
 {
     public $fixtures = [
-        'plugin.CakeDC/Users.users',
-        'plugin.Qobo/Duplicates.articles',
-        'plugin.Qobo/Duplicates.duplicates',
+        'plugin.CakeDC/Users.Users',
+        'plugin.Qobo/Duplicates.Articles',
+        'plugin.Qobo/Duplicates.Duplicates',
     ];
 
     /**

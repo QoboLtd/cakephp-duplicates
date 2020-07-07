@@ -11,7 +11,7 @@ use Qobo\Duplicates\Rule;
 
 class FinderTest extends TestCase
 {
-    public $fixtures = ['plugin.Qobo/Duplicates.articles'];
+    public $fixtures = ['plugin.Qobo/Duplicates.Articles'];
 
     /**
      * @var array $filters

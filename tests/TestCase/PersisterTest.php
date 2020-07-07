@@ -33,8 +33,8 @@ class PersisterTest extends TestCase
     private $resultSet;
 
     public $fixtures = [
-        'plugin.Qobo/Duplicates.articles',
-        'plugin.Qobo/Duplicates.duplicates',
+        'plugin.Qobo/Duplicates.Articles',
+        'plugin.Qobo/Duplicates.Duplicates',
     ];
 
     /**

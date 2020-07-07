@@ -12,13 +12,13 @@ class DuplicatesControllerTest extends IntegrationTestCase
     private $table;
 
     public $fixtures = [
-        'plugin.CakeDC/Users.users',
-        'plugin.Qobo/Duplicates.articles',
-        'plugin.Qobo/Duplicates.articles_tags',
-        'plugin.Qobo/Duplicates.authors',
-        'plugin.Qobo/Duplicates.comments',
-        'plugin.Qobo/Duplicates.duplicates',
-        'plugin.Qobo/Duplicates.tags',
+        'plugin.CakeDC/Users.Users',
+        'plugin.Qobo/Duplicates.Articles',
+        'plugin.Qobo/Duplicates.ArticlesTags',
+        'plugin.Qobo/Duplicates.Authors',
+        'plugin.Qobo/Duplicates.Comments',
+        'plugin.Qobo/Duplicates.Duplicates',
+        'plugin.Qobo/Duplicates.Tags',
     ];
 
     public function setUp()

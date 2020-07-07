@@ -288,7 +288,7 @@ class DuplicatesTable extends Table
         $data = [
             'original' => $original,
             'duplicates' => $table->find()->where([$primaryKey . ' IN' => $ids])->all(),
-            'fields' => $original->visibleProperties(),
+            'fields' => $original->getVisible(),
             'virtualFields' => $original->getVirtual(),
         ];
         $event = new Event((string)EventName::DUPLICATE_AFTER_FIND(), $this, [
